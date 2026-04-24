@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Dashboard — Traced</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0b0b09;
+  --ink: #0b0b09;
+  --surface: #111110;
+  --s2: #181816;
+  --rule: #232321;
+  --rule2: #363632;
+  --text: #f0efe8;
+  --dim: #72726a;
+  --faint: #3a3a36;
+  --lime: #c8f04a;
+  --serif: 'Instrument Serif', Georgia, serif;
+  --sans: 'Bricolage Grotesque', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--ink);color:var(--text);font-family:var(--sans);font-size:13px;display:flex;flex-direction:column;}
+
+/* ── TOPBAR ── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;height:52px;
+  background:var(--surface);
+  border-bottom:1px solid var(--rule);
+  flex-shrink:0;
+}
+
+.tl{display:flex;align-items:baseline;gap:8px;}
+.wordmark{font-family:var(--serif);font-size:18px;font-style:italic;color:var(--text);}
+.slash{font-family:var(--mono);font-size:10px;color:var(--faint);margin:0 2px;}
+.page{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:0.5px;}
+
+.status-pill{
+  display:flex;align-items:center;gap:6px;
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:2px;padding:4px 10px;
+  font-family:var(--mono);font-size:9px;
+  color:var(--dim);letter-spacing:1px;text-transform:uppercase;
+}
+
+.status-dot{width:5px;height:5px;background:var(--lime);border-radius:50%;animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}
+
+.tr2{display:flex;align-items:center;gap:10px;}
+
+.tbtn{
+  background:none;border:1px solid var(--rule2);
+  border-radius:2px;padding:5px 12px;
+  font-size:11px;font-family:var(--mono);
+  color:var(--dim);cursor:pointer;
+  letter-spacing:0.5px;text-transform:uppercase;
+  transition:border-color .15s,color .15s;
+}
+.tbtn:hover{border-color:rgba(255,255,255,0.3);color:var(--text);}
+
+/* ── LAYOUT ── */
+.layout{display:flex;flex:1;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sb{
+  width:200px;background:var(--surface);
+  border-right:1px solid var(--rule);
+  padding:20px 0;flex-shrink:0;
+}
+
+.sb-lbl{
+  font-family:var(--mono);font-size:9px;
+  color:var(--faint);letter-spacing:1.5px;text-transform:uppercase;
+  padding:0 20px;margin-bottom:8px;
+}
+
+.sb-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 20px;font-size:12px;
+  color:var(--dim);cursor:pointer;
+  transition:background .1s,color .1s;
+  font-weight:500;
+}
+.sb-item:hover{background:rgba(255,255,255,0.03);color:var(--text);}
+.sb-item.act{color:var(--lime);}
+
+.sb-item-l{display:flex;align-items:center;gap:8px;}
+.sb-ic{font-size:12px;width:14px;text-align:center;opacity:0.5;}
+
+.sb-n{
+  font-family:var(--mono);font-size:9px;
+  color:var(--faint);
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--rule);
+  border-radius:2px;padding:1px 5px;
+  transition:color .15s;
+}
+.sb-item.act .sb-n{color:var(--dim);}
+
+.sb-divider{height:1px;background:var(--rule);margin:14px 0;}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.main::-webkit-scrollbar{width:4px;}
+.main::-webkit-scrollbar-thumb{background:#222;border-radius:2px;}
+
+/* ── STAT STRIP ── */
+.stat-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border-bottom:1px solid var(--rule);
+  flex-shrink:0;
+}
+
+.stat-cell{
+  padding:20px 24px;
+  border-right:1px solid var(--rule);
+}
+.stat-cell:last-child{border-right:none;}
+
+.stat-pre{
+  font-family:var(--mono);font-size:9px;color:var(--faint);
+  letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+.stat-num{
+  font-family:var(--serif);font-size:38px;
+  font-weight:400;line-height:1;color:var(--text);
+}
+
+.stat-post{
+  font-family:var(--mono);font-size:9px;color:var(--faint);
+  margin-top:6px;letter-spacing:0.5px;
+}
+
+/* ── CONTENT AREA ── */
+.content{
+  flex:1;display:grid;
+  grid-template-columns:1fr 280px;
+  overflow:hidden;
+}
+
+/* ── EMAIL TABLE PANEL ── */
+.table-panel{
+  border-right:1px solid var(--rule);
+  overflow:hidden;display:flex;flex-direction:column;
+}
+
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 24px;border-bottom:1px solid var(--rule);
+  flex-shrink:0;
+}
+
+.panel-title{
+  font-family:var(--mono);font-size:10px;
+  color:var(--dim);letter-spacing:1px;text-transform:uppercase;
+}
+
+.panel-action{
+  font-family:var(--mono);font-size:9px;
+  color:var(--faint);cursor:pointer;
+  letter-spacing:0.5px;text-transform:uppercase;
+  transition:color .15s;
+}
+.panel-action:hover{color:var(--dim);}
+
+/* Table header */
+.eth{
+  display:grid;
+  grid-template-columns:32px 1fr 100px 90px 48px 80px;
+  gap:0;padding:8px 24px;
+  border-bottom:1px solid var(--rule);
+  font-family:var(--mono);font-size:8px;
+  color:var(--faint);letter-spacing:1px;text-transform:uppercase;
+  flex-shrink:0;
+}
+
+.email-rows{flex:1;overflow-y:auto;}
+.email-rows::-webkit-scrollbar{width:3px;}
+.email-rows::-webkit-scrollbar-thumb{background:#1c1c1a;border-radius:2px;}
+
+/* Email row */
+.etr{
+  display:grid;
+  grid-template-columns:32px 1fr 100px 90px 48px 80px;
+  gap:0;padding:10px 24px;
+  border-bottom:1px solid var(--rule);
+  align-items:center;cursor:pointer;
+  transition:background .1s;
+}
+.etr:hover{background:rgba(255,255,255,0.02);}
+.etr:last-child{border-bottom:none;}
+
+/* State indicator — just a dot and text */
+.state-dot{
+  width:6px;height:6px;border-radius:50%;flex-shrink:0;
+}
+.dot-sent{background:rgba(255,255,255,0.15);}
+.dot-opened{background:rgba(255,255,255,0.45);}
+.dot-read{background:rgba(255,255,255,0.8);}
+
+.e-subject{
+  font-size:12px;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-weight:500;padding-right:12px;
+}
+.e-recip{
+  font-size:11px;color:var(--dim);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-family:var(--mono);font-size:10px;
+}
+.e-state{
+  font-family:var(--mono);font-size:9px;
+  letter-spacing:0.5px;text-transform:uppercase;
+}
+.s-sent{color:var(--faint);}
+.s-opened{color:rgba(255,255,255,0.5);}
+.s-read{color:var(--text);}
+
+.e-count{
+  font-family:var(--mono);font-size:11px;color:var(--dim);
+  text-align:center;
+}
+.e-time{
+  font-family:var(--mono);font-size:10px;color:var(--faint);
+}
+
+/* ── RIGHT PANEL ── */
+.right-panel{
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+
+/* Hourly chart */
+.chart-section{
+  padding:20px 20px 16px;
+  border-bottom:1px solid var(--rule);
+  flex-shrink:0;
+}
+
+.chart-title{
+  font-family:var(--mono);font-size:9px;
+  color:var(--faint);letter-spacing:1px;
+  text-transform:uppercase;margin-bottom:14px;
+}
+
+.hour-chart{
+  display:flex;align-items:flex-end;gap:2px;height:56px;
+}
+
+.hcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;height:100%;}
+.hbar{width:100%;background:rgba(255,255,255,0.18);border-radius:1px 1px 0 0;min-height:2px;transition:background .15s;}
+.hbar.peak{background:rgba(255,255,255,0.5);}
+.hcol:hover .hbar{background:var(--dim);}
+.hlb{font-family:var(--mono);font-size:6px;color:var(--faint);}
+
+/* Device breakdown */
+.device-section{
+  padding:16px 20px;
+  border-bottom:1px solid var(--rule);
+  flex-shrink:0;
+}
+
+.device-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.device-row:last-child{margin-bottom:0;}
+.device-name{font-family:var(--mono);font-size:10px;color:var(--dim);width:56px;flex-shrink:0;}
+.device-bar-bg{flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}
+.device-bar-fill{height:100%;background:rgba(255,255,255,0.3);border-radius:2px;}
+.device-pct{font-family:var(--mono);font-size:9px;color:var(--faint);width:28px;text-align:right;}
+
+/* Activity feed */
+.activity-section{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+
+.act-feed{flex:1;overflow-y:auto;}
+.act-feed::-webkit-scrollbar{width:3px;}
+.act-feed::-webkit-scrollbar-thumb{background:#1c1c1a;border-radius:2px;}
+
+.act-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 20px;border-bottom:1px solid var(--rule);
+}
+.act-item:hover{background:rgba(255,255,255,0.02);}
+.act-item:last-child{border-bottom:none;}
+
+.act-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.ad-read{background:rgba(255,255,255,0.7);}
+.ad-open{background:var(--dim);}
+.ad-link{background:rgba(255,255,255,0.2);}
+
+.act-body{flex:1;min-width:0;}
+.act-main{font-size:11px;color:rgba(255,255,255,0.55);line-height:1.4;}
+.act-main strong{color:var(--text);}
+.act-chips{display:flex;gap:4px;margin-top:3px;}
+.act-chip{
+  font-family:var(--mono);font-size:8px;color:var(--faint);
+  border:1px solid var(--rule);border-radius:2px;padding:1px 5px;
+  letter-spacing:0.5px;
+}
+.act-time{font-family:var(--mono);font-size:9px;color:var(--faint);flex-shrink:0;}
+
+/* ── DETAIL DRAWER ── */
+.drawer{
+  position:fixed;top:52px;right:-360px;width:340px;
+  height:calc(100vh - 52px);
+  background:var(--surface);
+  border-left:1px solid var(--rule2);
+  box-shadow:-20px 0 60px rgba(0,0,0,0.6);
+  z-index:500;
+  transition:right .3s cubic-bezier(.16,1,.3,1);
+  overflow-y:auto;display:flex;flex-direction:column;
+}
+.drawer.open{right:0;}
+.drawer::-webkit-scrollbar{width:3px;}
+.drawer::-webkit-scrollbar-thumb{background:#222;border-radius:2px;}
+
+.dh{
+  padding:18px 20px 14px;
+  border-bottom:1px solid var(--rule);
+  display:flex;align-items:flex-start;justify-content:space-between;
+  position:sticky;top:0;background:var(--surface);z-index:2;
+}
+
+.dt{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--text);margin-bottom:3px;line-height:1.2;}
+.ds{font-family:var(--mono);font-size:9px;color:var(--faint);letter-spacing:0.5px;}
+
+.dclose{
+  background:none;border:1px solid var(--rule);
+  color:var(--faint);cursor:pointer;border-radius:2px;
+  width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;flex-shrink:0;font-family:var(--mono);
+  transition:border-color .15s,color .15s;
+}
+.dclose:hover{border-color:var(--rule2);color:var(--dim);}
+
+.dbody{flex:1;padding:16px 20px;display:flex;flex-direction:column;gap:20px;}
+
+.d-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.d-stat{
+  background:var(--s2);border:1px solid var(--rule);
+  border-radius:2px;padding:12px;text-align:center;
+}
+.d-stat-n{font-family:var(--serif);font-size:28px;font-weight:400;color:var(--text);line-height:1;}
+.d-stat-l{font-family:var(--mono);font-size:8px;color:var(--faint);margin-top:3px;letter-spacing:0.5px;text-transform:uppercase;}
+
+.d-sec-lbl{font-family:var(--mono);font-size:9px;color:var(--faint);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+
+.d-hour-chart{display:flex;align-items:flex-end;gap:2px;height:48px;}
+.dhcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;}
+.dhbar{width:100%;background:rgba(255,255,255,0.2);border-radius:1px 1px 0 0;min-height:2px;}
+.dhlb{font-family:var(--mono);font-size:5px;color:var(--faint);}
+
+.d-tl{display:flex;flex-direction:column;}
+.d-tl-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--rule);}
+.d-tl-item:last-child{border-bottom:none;}
+.d-tl-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.d-tl-b{flex:1;}
+.d-tl-e{font-size:11px;color:rgba(255,255,255,0.6);}
+.d-tl-m{font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:1px;}
+.d-tl-t{font-family:var(--mono);font-size:9px;color:var(--faint);flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tl">
+    <span class="wordmark" style="font-family:var(--sans);font-weight:800;font-style:normal;letter-spacing:-.5px;">Traced<span style="color:var(--lime)">.</span></span>
+    <span class="slash">/</span>
+    <span class="page">dashboard</span>
+  </div>
+  <div class="tr2">
+    <div class="status-pill"><span class="status-dot"></span>Tracking Active</div>
+    <button class="tbtn" onclick="loadAll()">Refresh</button>
+    <button class="tbtn">↓ Export</button>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sb">
+    <div class="sb-lbl">Views</div>
+    <div class="sb-item act" onclick="setView('all',this)"><div class="sb-item-l"><span class="sb-ic">◈</span>All</div><span class="sb-n" id="b-all">0</span></div>
+    <div class="sb-item" onclick="setView('read',this)"><div class="sb-item-l"><span class="sb-ic">●</span>Fully Read</div><span class="sb-n" id="b-read">0</span></div>
+    <div class="sb-item" onclick="setView('opened',this)"><div class="sb-item-l"><span class="sb-ic">○</span>Opened</div><span class="sb-n" id="b-opened">0</span></div>
+    <div class="sb-item" onclick="setView('sent',this)"><div class="sb-item-l"><span class="sb-ic">·</span>Unopened</div><span class="sb-n" id="b-sent">0</span></div>
+    <div class="sb-divider"></div>
+    <div class="sb-lbl">Tools</div>
+    <div class="sb-item" onclick="exportCSV()"><div class="sb-item-l"><span class="sb-ic">↓</span>Export CSV</div></div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Stat strip -->
+    <div class="stat-strip">
+      <div class="stat-cell">
+        <div class="stat-pre">Tracked</div>
+        <div class="stat-num" id="st-total">0</div>
+        <div class="stat-post">Emails total</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-pre">Opened</div>
+        <div class="stat-num" id="st-opened">0</div>
+        <div class="stat-post">By recipients</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-pre">Fully Read</div>
+        <div class="stat-num" id="st-read">0</div>
+        <div class="stat-post">To the bottom</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-pre">Links Clicked</div>
+        <div class="stat-num" id="st-links">0</div>
+        <div class="stat-post">Total clicks</div>
+      </div>
+    </div>
+
+    <!-- Content grid -->
+    <div class="content">
+
+      <!-- Email table -->
+      <div class="table-panel">
+        <div class="panel-head">
+          <span class="panel-title" id="panel-title">All Tracked</span>
+          <span class="panel-action" onclick="exportCSV()">Export ↓</span>
+        </div>
+        <div class="eth">
+          <span></span>
+          <span>Subject</span>
+          <span>Recipient</span>
+          <span>Status</span>
+          <span>×</span>
+          <span>Last</span>
+        </div>
+        <div class="email-rows" id="email-rows"></div>
+      </div>
+
+      <!-- Right column -->
+      <div class="right-panel">
+        <div class="panel-head" style="flex-shrink:0;border-bottom:1px solid var(--rule);">
+          <span class="panel-title">Opens by Hour</span>
+        </div>
+        <div class="chart-section">
+          <div class="hour-chart" id="hourly-chart"></div>
+        </div>
+
+        <div class="panel-head" style="flex-shrink:0;border-bottom:1px solid var(--rule);border-top:1px solid var(--rule);">
+          <span class="panel-title">Device Breakdown</span>
+        </div>
+        <div class="device-section" id="device-list"></div>
+
+        <div class="panel-head" style="flex-shrink:0;border-bottom:1px solid var(--rule);border-top:1px solid var(--rule);">
+          <span class="panel-title">Live Activity</span>
+          <span class="panel-action" id="act-count">—</span>
+        </div>
+        <div class="activity-section">
+          <div class="act-feed" id="act-feed"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Drawer -->
+<div class="drawer" id="drawer">
+  <div class="dh">
+    <div><div class="dt" id="d-title">—</div><div class="ds" id="d-sub">—</div></div>
+    <button class="dclose" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="dbody" id="d-body"></div>
+</div>
+
+<script>
+const API = 'https://traced.mikaelsyed.me';
+
+// ── MOCK DATA (shown when no live connection) ──
+const MOCK = [
+  {trackingId:'t1',subject:'Q4 Proposal — let me know your thoughts',recipient:'sarah.m@acme.com',state:'fully_read',openCount:3,fullyReadCount:3,createdAt:'2025-04-14T09:00:00Z',lastOpened:'2025-04-14T15:14:00Z',opens:[{time:'2025-04-14T09:42:00Z',device:'mobile',client:'Gmail App'},{time:'2025-04-14T15:14:00Z',device:'mobile',client:'Gmail App'}],timeline:[{type:'opened',time:'2025-04-14T09:42:00Z',device:'mobile',client:'Gmail App'},{type:'fully_read',time:'2025-04-14T15:14:00Z',device:'mobile',client:'Gmail App'}]},
+  {trackingId:'t2',subject:'Following up on the design review',recipient:'james.k@design.co',state:'opened',openCount:1,fullyReadCount:0,createdAt:'2025-04-13T11:00:00Z',lastOpened:'2025-04-13T13:22:00Z',opens:[{time:'2025-04-13T13:22:00Z',device:'desktop',client:'Outlook'}],timeline:[{type:'opened',time:'2025-04-13T13:22:00Z',device:'desktop',client:'Outlook'}]},
+  {trackingId:'t3',subject:'Invoice #2024-089 — please review',recipient:'alex.t@company.io',state:'sent',openCount:0,fullyReadCount:0,createdAt:'2025-04-12T08:30:00Z',lastOpened:null,opens:[],timeline:[]},
+  {trackingId:'t4',subject:'Partnership opportunity — are you interested?',recipient:'nina.p@ventures.com',state:'fully_read',openCount:7,fullyReadCount:4,createdAt:'2025-04-10T10:00:00Z',lastOpened:'2025-04-12T16:30:00Z',opens:[{time:'2025-04-10T11:00:00Z',device:'mobile',client:'Apple Mail'},{time:'2025-04-11T09:00:00Z',device:'desktop',client:'Gmail (Web)'}],timeline:[{type:'opened',time:'2025-04-10T11:00:00Z',device:'mobile',client:'Apple Mail'},{type:'fully_read',time:'2025-04-11T09:00:00Z',device:'desktop',client:'Gmail (Web)'}]},
+  {trackingId:'t5',subject:'Hey! Quick check-in 👋',recipient:'neha@startup.ai',state:'fully_read',openCount:2,fullyReadCount:2,createdAt:'2025-04-09T14:00:00Z',lastOpened:'2025-04-09T18:45:00Z',opens:[{time:'2025-04-09T18:00:00Z',device:'mobile',client:'Gmail App'}],timeline:[{type:'opened',time:'2025-04-09T18:00:00Z',device:'mobile',client:'Gmail App'},{type:'fully_read',time:'2025-04-09T18:45:00Z',device:'mobile',client:'Gmail App'}]},
+  {trackingId:'t6',subject:'Onboarding docs — please read before Monday',recipient:'priya@team.co',state:'opened',openCount:2,fullyReadCount:0,createdAt:'2025-04-08T09:00:00Z',lastOpened:'2025-04-08T11:30:00Z',opens:[{time:'2025-04-08T10:00:00Z',device:'tablet',client:'Safari Mail'},{time:'2025-04-08T11:30:00Z',device:'desktop',client:'Outlook'}],timeline:[{type:'opened',time:'2025-04-08T10:00:00Z',device:'tablet',client:'Safari Mail'},{type:'link_clicked',url:'https://notion.so/onboarding',time:'2025-04-08T11:32:00Z',device:'desktop',client:'Outlook'}]},
+];
+
+const MOCK_ACT = [
+  {type:'fully_read',subject:'Q4 Proposal',recipient:'sarah.m@acme.com',time:'2025-04-14T15:14:00Z',device:'mobile',client:'Gmail App'},
+  {type:'opened',subject:'Design review',recipient:'james.k@design.co',time:'2025-04-13T13:22:00Z',device:'desktop',client:'Outlook'},
+  {type:'fully_read',subject:'Quick check-in',recipient:'neha@startup.ai',time:'2025-04-09T18:45:00Z',device:'mobile',client:'Gmail App'},
+  {type:'link_clicked',subject:'Onboarding docs',recipient:'priya@team.co',time:'2025-04-08T11:32:00Z',device:'desktop',client:'Outlook'},
+  {type:'fully_read',subject:'Partnership opp.',recipient:'nina.p@ventures.com',time:'2025-04-11T09:00:00Z',device:'desktop',client:'Gmail (Web)'},
+];
+
+let emails = [];
+let activity = [];
+let currentView = 'all';
+
+async function loadAll() {
+  try {
+    const extData = await getExtData();
+    if (extData && Object.keys(extData).length) {
+      const ids = Object.keys(extData);
+      const res = await fetch(`${API}/api/status/bulk`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids})});
+      const statuses = await res.json();
+      emails = ids.map(id => ({...extData[id],...statuses[id]})).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+      const actRes = await fetch(`${API}/api/activity?limit=30`);
+      activity = await actRes.json();
+    } else {
+      emails = MOCK;
+      activity = MOCK_ACT;
+    }
+  } catch {
+    emails = MOCK;
+    activity = MOCK_ACT;
+  }
+  renderAll();
+}
+
+async function getExtData() {
+  if (!window.chrome?.runtime?.sendMessage) return null;
+  try {
+    return await new Promise((res,rej)=>{
+      chrome.runtime.sendMessage({type:'GET_ALL'},d=>{
+        if(chrome.runtime.lastError)rej();else res(d);
+      });
+    });
+  } catch { return null; }
+}
+
+function renderAll() {
+  // Stats
+  const total = emails.length;
+  const opened = emails.filter(e=>e.state==='opened'||e.state==='fully_read').length;
+  const read = emails.filter(e=>e.state==='fully_read').length;
+  const links = activity.filter(e=>e.type==='link_clicked').length;
+  se('st-total',total);se('st-opened',opened);se('st-read',read);se('st-links',links);
+  se('b-all',total);se('b-read',read);se('b-opened',opened);se('b-sent',total-opened);
+
+  renderTable();
+  renderHourly();
+  renderDevices();
+  renderActivity();
+}
+
+function renderTable() {
+  const filter = {'all':()=>true,'read':e=>e.state==='fully_read','opened':e=>e.state==='opened','sent':e=>e.state==='sent'};
+  const filtered = emails.filter(filter[currentView]||filter.all);
+  const rows = document.getElementById('email-rows');
+
+  if(!filtered.length){
+    rows.innerHTML=`<div style="padding:40px 24px;font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:1px;text-transform:uppercase;">No emails in this view</div>`;
+    return;
+  }
+
+  rows.innerHTML = filtered.map(e=>{
+    const {state='sent',openCount=0,fullyReadCount=0,subject,recipient,opens=[],createdAt,lastOpened} = e;
+    const dotCls = {sent:'dot-sent',opened:'dot-opened',fully_read:'dot-read'}[state]||'dot-sent';
+    const sCls = {sent:'s-sent',opened:'s-opened',fully_read:'s-read'}[state]||'s-sent';
+    const sLbl = {sent:'Unopened',opened:'Opened',fully_read:'Read'}[state]||'Sent';
+    const cnt = state==='fully_read'?fullyReadCount:openCount;
+    const lastT = fmtShort(lastOpened||createdAt);
+
+    return `<div class="etr" onclick="openDrawer('${e.trackingId}')">
+      <div style="display:flex;align-items:center;justify-content:center;"><div class="state-dot ${dotCls}"></div></div>
+      <div class="e-subject">${esc(subject||'(no subject)')}</div>
+      <div class="e-recip">${esc(recipient||'—')}</div>
+      <div class="e-state ${sCls}">${sLbl}</div>
+      <div class="e-count">${cnt>0?cnt+'×':'—'}</div>
+      <div class="e-time">${lastT}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderHourly() {
+  const b={};
+  activity.forEach(e=>{const h=new Date(e.time).getHours();b[h]=(b[h]||0)+1;});
+  const max=Math.max(1,...Object.values(b));
+  const chart=document.getElementById('hourly-chart');
+  chart.innerHTML=Array.from({length:24},(_,h)=>{
+    const c=b[h]||0;const pct=Math.round((c/max)*100);
+    const isPeak=pct>60;
+    return `<div class="hcol" title="${h}:00 — ${c} event${c!==1?'s':''}">
+      <div class="hbar${isPeak?' peak':''}" style="height:${pct}%"></div>
+      <div class="hlb">${h%6===0?h+'h':''}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderDevices() {
+  const d={};
+  activity.forEach(e=>{if(e.device)d[e.device]=(d[e.device]||0)+1;});
+  const total=Object.values(d).reduce((a,b)=>a+b,0)||1;
+  const dl=document.getElementById('device-list');
+  if(!Object.keys(d).length){dl.innerHTML='<div style="font-family:var(--mono);font-size:9px;color:var(--faint);">No data</div>';return;}
+  dl.innerHTML=Object.entries(d).sort((a,b)=>b[1]-a[1]).map(([dv,c])=>{
+    const pct=Math.round((c/total)*100);
+    return `<div class="device-row">
+      <div class="device-name">${cap(dv)}</div>
+      <div class="device-bar-bg"><div class="device-bar-fill" style="width:${pct}%"></div></div>
+      <div class="device-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+function renderActivity() {
+  se('act-count',activity.length+' events');
+  const typeMap={
+    fully_read:{dot:'ad-read',lbl:'fully read'},
+    opened:{dot:'ad-open',lbl:'opened'},
+    link_clicked:{dot:'ad-link',lbl:'clicked a link in'},
+  };
+  const feed=document.getElementById('act-feed');
+  if(!activity.length){feed.innerHTML='<div style="padding:20px;font-family:var(--mono);font-size:9px;color:var(--faint);">Waiting for activity…</div>';return;}
+  feed.innerHTML=activity.map(e=>{
+    const {dot,lbl}=typeMap[e.type]||typeMap.opened;
+    return `<div class="act-item">
+      <div class="act-dot ${dot}"></div>
+      <div class="act-body">
+        <div class="act-main"><strong>${esc(e.recipient||'Someone')}</strong> ${lbl} "${esc(e.subject||'')}"</div>
+        <div class="act-chips">
+          ${e.device?`<span class="act-chip">${e.device}</span>`:''}
+          ${e.client?`<span class="act-chip">${esc(e.client)}</span>`:''}
+        </div>
+      </div>
+      <div class="act-time">${fmtShort(e.time)}</div>
+    </div>`;
+  }).join('');
+}
+
+// Drawer
+function openDrawer(id) {
+  const e=emails.find(x=>x.trackingId===id);
+  if(!e)return;
+  document.getElementById('d-title').textContent=e.subject||'(no subject)';
+  document.getElementById('d-sub').textContent=`to: ${e.recipient||'—'}`;
+
+  const hb={};
+  (e.timeline||[]).forEach(ev=>{const h=new Date(ev.time).getHours();hb[h]=(hb[h]||0)+1;});
+  const hmax=Math.max(1,...Object.values(hb));
+  const hourBars=Array.from({length:24},(_,h)=>{
+    const c=hb[h]||0;const pct=Math.round((c/hmax)*100);
+    return `<div class="dhcol"><div class="dhbar" style="height:${pct}%"></div><div class="dhlb">${h%6===0?h+'h':''}</div></div>`;
+  }).join('');
+
+  const dotCls={fully_read:'ad-read',opened:'ad-open',link_clicked:'ad-link'};
+  const tlHtml=(e.timeline||[]).slice(-10).reverse().map(ev=>{
+    const dc=dotCls[ev.type]||'ad-open';
+    const lbl={fully_read:'Fully read',opened:'Opened',link_clicked:'Link clicked'}[ev.type]||'Event';
+    return `<div class="d-tl-item">
+      <div class="d-tl-dot ${dc}"></div>
+      <div class="d-tl-b">
+        <div class="d-tl-e">${lbl}</div>
+        <div class="d-tl-m">${ev.device||''} · ${ev.client||''}</div>
+      </div>
+      <div class="d-tl-t">${fmtFull(ev.time)}</div>
+    </div>`;
+  }).join('')||'<div style="font-family:var(--mono);font-size:9px;color:var(--faint);padding:4px 0;">No events yet.</div>';
+
+  const devs=[...new Set((e.opens||[]).map(o=>o.device).filter(Boolean))].length;
+
+  document.getElementById('d-body').innerHTML=`
+    <div class="d-stat-row">
+      <div class="d-stat"><div class="d-stat-n">${e.openCount||0}</div><div class="d-stat-l">Opens</div></div>
+      <div class="d-stat"><div class="d-stat-n">${e.fullyReadCount||0}</div><div class="d-stat-l">Full Reads</div></div>
+      <div class="d-stat"><div class="d-stat-n">${devs}</div><div class="d-stat-l">Devices</div></div>
+    </div>
+    <div>
+      <div class="d-sec-lbl">Opens by hour</div>
+      <div class="d-hour-chart">${hourBars}</div>
+    </div>
+    <div>
+      <div class="d-sec-lbl">Timeline</div>
+      <div class="d-tl">${tlHtml}</div>
+    </div>`;
+
+  document.getElementById('drawer').classList.add('open');
+}
+
+function closeDrawer(){document.getElementById('drawer').classList.remove('open');}
+
+function setView(v,el){
+  currentView=v;
+  document.querySelectorAll('.sb-item').forEach(x=>x.classList.remove('act'));
+  el.classList.add('act');
+  const titles={all:'All Tracked',read:'Fully Read',opened:'Opened',sent:'Unopened'};
+  se('panel-title',titles[v]||'All');
+  renderTable();
+}
+
+function exportCSV(){
+  const rows=[['Subject','Recipient','State','Opens','Fully Read','Sent','Last Opened']];
+  emails.forEach(e=>rows.push([`"${(e.subject||'').replace(/"/g,'""')}"`,`"${(e.recipient||'').replace(/"/g,'""')}"`,e.state||'sent',e.openCount||0,e.fullyReadCount||0,e.createdAt||'',e.lastOpened||'']));
+  const blob=new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`traced-${new Date().toISOString().slice(0,10)}.csv`;a.click();
+}
+
+function se(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
+function cap(s){return s?s[0].toUpperCase()+s.slice(1):'';}
+function esc(s=''){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmtShort(iso){
+  if(!iso)return'—';
+  const diff=Date.now()-new Date(iso).getTime();
+  if(diff<60000)return'now';
+  if(diff<3600000)return Math.floor(diff/60000)+'m';
+  if(diff<86400000)return Math.floor(diff/3600000)+'h';
+  return Math.floor(diff/86400000)+'d';
+}
+function fmtFull(iso){if(!iso)return'—';return new Date(iso).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
+
+loadAll();
+setInterval(loadAll,30000);
+</script>
+</body>
+</html>

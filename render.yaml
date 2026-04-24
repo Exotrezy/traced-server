@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: traced
+    env: node
+    rootDir: server
+    buildCommand: npm install && node ../build.js
+    startCommand: node server.js
+    envVars:
+      - key: BASE_URL
+        value: https://traced.mikaelsyed.me
+      - key: NODE_ENV
+        value: production

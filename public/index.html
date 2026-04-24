@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Traced — Read what's been read.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200;12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+/* ── TOKENS ── */
+:root{
+  --bg:#0b0b09;
+  --bg2:#111110;
+  --s2:#181816;
+  --rule:#232321;
+  --rule2:#363632;
+  --text:#f0efe8;
+  --dim:#72726a;
+  --faint:#3a3a36;
+  --lime:#c8f04a;
+  --sans:'Bricolage Grotesque',sans-serif;
+  --serif:'Instrument Serif',Georgia,serif;
+  --mono:'IBM Plex Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);overflow-x:hidden;}
+::selection{background:var(--lime);color:#0b0b09;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;inset:0 0 auto;z-index:300;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 44px;height:56px;
+  background:rgba(11,11,9,.88);
+  border-bottom:1px solid var(--rule);
+  backdrop-filter:blur(18px);
+}
+.nav-logo{text-decoration:none;display:flex;align-items:baseline;gap:3px;}
+.nav-wordmark{
+  font-family:var(--sans);font-weight:800;font-size:18px;
+  color:var(--text);letter-spacing:-.5px;
+}
+.nav-wordmark span{color:var(--lime);}
+.nav-links{display:flex;align-items:center;gap:6px;}
+.nav-links a{
+  font-size:13px;font-weight:500;color:var(--dim);
+  text-decoration:none;padding:6px 12px;border-radius:4px;
+  transition:color .15s,background .15s;
+}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,.04);}
+.nav-dl{
+  font-size:13px;font-weight:700;color:#0b0b09;
+  background:var(--lime);padding:7px 18px;border-radius:4px;
+  transition:opacity .15s;
+}
+.nav-dl:hover{opacity:.86;}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;display:grid;
+  grid-template-columns:1fr 1fr;
+  align-items:center;
+  gap:0;
+  padding:80px 44px 64px;
+  border-bottom:1px solid var(--rule);
+  overflow:hidden;
+}
+.hero-left{
+  display:flex;flex-direction:column;justify-content:center;
+  padding-right:40px;
+}
+.hero-h{
+  font-family:var(--sans);font-weight:800;
+  font-size:clamp(52px,6.5vw,112px);
+  line-height:1.1;letter-spacing:-4px;color:var(--text);
+  margin-bottom:32px;
+  padding-bottom: 0.1em;
+}
+.hero-h em{
+  font-family:var(--serif);font-style:italic;
+  font-weight:300;color:var(--dim);
+}
+.hero-desc{font-size:16px;color:var(--dim);line-height:1.75;max-width:420px;font-weight:300;margin-bottom:32px;}
+.hero-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+
+/* ── HERO RIGHT — animated visual ── */
+.hero-right{
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+  height:100%;min-height:500px;
+}
+
+/* Faint grid background */
+.hero-right::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(var(--rule) 1px,transparent 1.5px),
+    linear-gradient(90deg,var(--rule) 1px,transparent 1.5px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%);
+  opacity:.4;
+}
+
+/* The central phone-like card */
+.hero-card{
+  position:relative;z-index:2;
+  width:280px;
+  background:var(--bg2);
+  border:1px solid var(--rule2);
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 32px 80px rgba(0,0,0,.6);
+}
+.hero-card-label{
+  font-family:var(--mono);font-size:9px;color:var(--dim);
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;
+}
+.hero-email-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 0;border-bottom:1px solid var(--rule);
+}
+.hero-email-row:last-of-type{border-bottom:none;}
+
+/* Checkmark states */
+.hero-checks{display:flex;align-items:center;position:relative;flex-shrink:0;}
+.hero-tick{width:13px;height:11px;}
+.hero-tick:last-child{margin-left:-4px;}
+.state-grey .hero-tick{color:#4a4a46;}
+.state-blue .hero-tick{color:#1a73e8;}
+.state-green .hero-tick{color:#34a853;}
+
+/* Count badge */
+.hero-badge{
+  position:absolute;bottom:-5px;right:-8px;
+  font-size:8px;font-weight:700;border-radius:5px;
+  min-width:12px;height:12px;padding:0 2px;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-family:sans-serif;
+}
+.state-blue .hero-badge{background:#1a73e8;}
+.state-green .hero-badge{background:#34a853;}
+
+.hero-email-info{flex:1;min-width:0;}
+.hero-email-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hero-email-sub{font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.hero-email-time{font-family:var(--mono);font-size:10px;color:var(--faint);flex-shrink:0;}
+
+/* Floating notification bubble */
+.hero-notif{
+  position:absolute;top:45px;right: -25px;
+  background:#1e1e1c;border:1px solid var(--rule2);
+  border-radius:12px;padding:10px 14px;
+  display:flex;align-items:flex-start;gap:10px;
+  box-shadow:0 16px 48px rgba(0,0,0,.5);
+  width:200px;
+  animation:float-a 6s ease-in-out infinite;
+  z-index:3;
+}
+.hero-notif-icon{
+  width:28px;height:28px;border-radius:8px;
+  background:var(--lime);display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-size:14px;
+}
+.hero-notif-text{flex:1;}
+.hero-notif-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.hero-notif-sub{font-size:10px;color:var(--dim);line-height:1.4;}
+
+/* Second floating bubble */
+.hero-notif2{
+  position:absolute;bottom:80px;left:-80px;
+  background:#1e1e1c;border:1px solid var(--rule2);
+  border-radius:12px;padding:10px 14px;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 16px 48px rgba(0,0,0,.5);
+  width:190px;
+  animation:float-b 7s ease-in-out infinite;
+  z-index:3;
+}
+.hero-notif2-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:#34a853;flex-shrink:0;
+  box-shadow:0 0 10px #34a853;
+}
+.hero-notif2-text{font-size:11px;color:var(--text);line-height:1.4;}
+.hero-notif2-text span{color:var(--lime);font-weight:700;}
+
+@keyframes float-a{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-10px);}
+}
+@keyframes float-b{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(8px);}
+}
+
+/* Animated ring pulse behind card */
+.hero-ring{
+  position:absolute;z-index:1;
+  width:320px;height:320px;border-radius:50%;
+  border:1px solid rgba(200,240,74,.08);
+  animation:pulse-ring 4s ease-out infinite;
+}
+.hero-ring:nth-child(2){animation-delay:1.3s;width:400px;height:400px;}
+.hero-ring:nth-child(3){animation-delay:2.6s;width:480px;height:480px;}
+@keyframes pulse-ring{
+  0%{opacity:.6;transform:scale(.9);}
+  100%{opacity:0;transform:scale(1.15);}
+}
+
+/* The cycling state animation on row 1 */
+@keyframes state-cycle{
+  0%,30%{color:#4a4a46;}   /* grey = sent */
+  35%,65%{color:#1a73e8;}  /* blue = opened */
+  70%,100%{color:#34a853;} /* green = fully read */
+}
+.state-animated .hero-tick{animation:state-cycle 4s ease-in-out infinite;}
+.btn{
+  font-family:var(--sans);font-size:13px;font-weight:700;
+  text-decoration:none;padding:11px 24px;border-radius:4px;
+  display:inline-flex;align-items:center;gap:7px;
+  border:none;cursor:pointer;transition:all .15s;
+}
+.btn-lime{background:var(--lime);color:#0b0b09;}
+.btn-lime:hover{opacity:.87;}
+.btn-ghost{color:var(--dim);border:1px solid var(--rule2);background:transparent;}
+.btn-ghost:hover{border-color:var(--dim);color:var(--text);}
+
+/* ── MARQUEE ── */
+.marquee{overflow:hidden;border-bottom:1px solid var(--rule);padding:10px 0;background:var(--bg2);}
+.m-inner{display:flex;width:max-content;animation:march 38s linear infinite;}
+@keyframes march{to{transform:translateX(-50%);}}
+.m-item{
+  display:flex;align-items:center;gap:24px;padding:0 24px;
+  font-family:var(--mono);font-size:10px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--faint);white-space:nowrap;
+}
+.m-dot{color:var(--lime);font-size:6px;}
+
+/* ═══════════════════════════════════════
+   GMAIL MOCKUP — exact trackmailbox.com source
+═══════════════════════════════════════ */
+.demo-section{padding:80px 20px;border-bottom:1px solid var(--rule);}
+.eyebrow{
+  font-family:var(--mono);font-size:10px;color:var(--dim);
+  letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:44px;
+}
+
+/* Browser wrapper */
+.browser-wrap{
+  position:relative;max-width:100%;margin:0 auto;
+  border-radius:12px;overflow:hidden;
+  box-shadow:0 50px 130px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.05);
+}
+
+/* Chrome titlebar */
+.chrome-bar{
+  background:#dde1e7;padding:10px 14px 0;
+  display:flex;flex-direction:column;gap:8px;
+}
+.chrome-top{display:flex;align-items:center;gap:8px;}
+.chrome-dots{display:flex;gap:6px;}
+.chrome-dot{width:12px;height:12px;border-radius:50%;}
+.chrome-url{
+  flex:1;background:#fff;border-radius:100px;margin:0 12px;
+  padding:5px 14px;display:flex;align-items:center;gap:6px;
+  font-family:-apple-system,sans-serif;font-size:12px;color:#3c3c3c;
+}
+.chrome-greenlock{
+  width:8px;height:8px;border-radius:50%;background:#1e8e3e;flex-shrink:0;
+}
+.chrome-tabs{display:flex;}
+.chrome-tab{
+  background:#fff;padding:8px 18px 0;border-radius:8px 8px 0 0;
+  display:flex;align-items:center;gap:7px;
+  font-family:-apple-system,sans-serif;font-size:12px;color:#3c3c3c;
+}
+
+/* Gmail wrapper */
+.gmail-wrap{
+  background:#fff;display:flex;
+  font-family:'Google Sans','Roboto',Arial,sans-serif;
+  min-height:620px;
+}
+
+/* Sidebar — exact from trackmailbox source */
+.gm-sb{
+  width:256px;flex-shrink:0;background:#fff;
+  padding:8px 0;display:flex;flex-direction:column;
+  border-right:none;
+}
+.gm-sb-header{
+  padding:8px 16px 4px;display:flex;align-items:center;gap:8px;
+}
+/* Gmail M logo SVG */
+.gm-sb-header svg{height:24px;width:auto;}
+.gm-sb-header span{font-size:22px;font-weight:400;color:#444746;}
+
+.gm-compose-btn{
+  margin:4px 12px 8px;display:flex;align-items:center;justify-content:flex-start;
+  gap:10px;background:#c2e7ff;border-radius:16px;
+  padding:16px 22px;cursor:pointer;transition:box-shadow .15s;
+  border:none;font-family:inherit;
+}
+.gm-compose-btn:hover{box-shadow:0 1px 4px rgba(0,0,0,.15);}
+.gm-compose-icon{color:#001d35;flex-shrink:0;}
+.gm-compose-label{font-size:14px;font-weight:500;color:#001d35;}
+
+.gm-sb-nav{list-style:none;padding:0;}
+.gm-sb-nav li{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;height:32px;font-size:14px;color:#444746;
+  cursor:pointer;border-radius:0 16px 16px 0;margin-right:16px;
+  transition:background .1s;
+}
+.gm-sb-nav li:hover:not(.gm-active){background:#f1f3f4;}
+.gm-active{background:#d3e3fd!important;font-weight:600;color:#001d35!important;}
+.gm-ni{display:flex;align-items:center;gap:14px;}
+.gm-ni svg{width:20px;height:20px;flex-shrink:0;}
+.gm-ni-badge{font-size:12px;font-weight:500;}
+.gm-labels-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;height:32px;font-size:14px;color:#444746;cursor:pointer;
+}
+.gm-labels-plus{
+  width:28px;height:28px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:18px;transition:background .1s;cursor:pointer;
+}
+.gm-labels-plus:hover{background:#f1f3f4;}
+.gm-divider{height:1px;background:#e0e0e0;margin:4px 0;}
+
+/* Main pane */
+.gm-main{flex:1;display:flex;flex-direction:column;border-left:1px solid #e0e0e0;min-width:0;}
+
+/* ── Top bar — trackmailbox exact ── */
+.gm-topbar{
+  display:flex;align-items:center;gap:14px;
+  padding:8px 16px;border-bottom:1px solid #e0e0e0;
+}
+.gm-hamburger{
+  width:40px;height:40px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;color:#444746;transition:background .1s;
+  flex-shrink:0;
+}
+.gm-hamburger:hover{background:#f1f3f4;}
+
+/* Search box */
+.gm-search{
+  flex:1;max-width:720px;display:flex;align-items:center;gap:8px;
+  background:#eaf1fb;border-radius:24px;padding:8px 16px;
+  transition:background .15s;cursor:text;
+}
+.gm-search:hover{background:#dfe7f5;}
+.gm-search-ico{color:#444746;flex-shrink:0;}
+.gm-search-txt{font-size:16px;color:#444746;flex:1;}
+.gm-search-btn{
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;transition:background .1s;color:#444746;
+}
+.gm-search-btn:hover{background:rgba(0,0,0,.06);}
+
+/* Right buttons in topbar */
+.gm-topbar-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+
+.gm-active-pill{
+  display:flex;align-items:center;gap:5px;
+  padding:6px 12px;border-radius:20px;
+  font-size:13px;color:#444746;cursor:pointer;
+  transition:background .1s;
+}
+.gm-active-pill:hover{background:#f1f3f4;}
+.gm-active-dot{width:8px;height:8px;border-radius:50%;background:#188038;flex-shrink:0;}
+.gm-caret{color:#5f6368;}
+
+.gm-tracking-pill{
+  display:flex;align-items:center;gap:7px;
+  padding:6px 12px;border-radius:20px;border:1px solid #dadce0;
+  font-size:13px;font-weight:500;color:#1a7334;cursor:pointer;
+  background:#e6f4ea;border-color:rgba(52,168,83,.25);
+  transition:box-shadow .12s;
+}
+.gm-tracking-pill:hover{box-shadow:0 1px 4px rgba(0,0,0,.12);}
+.gm-tracking-check{
+  width:16px;height:16px;border-radius:50%;background:#188038;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;flex-shrink:0;
+}
+.gm-toggle{
+  width:36px;height:20px;background:#188038;border-radius:10px;
+  position:relative;flex-shrink:0;
+}
+.gm-toggle::after{
+  content:'';position:absolute;width:16px;height:16px;
+  background:#fff;border-radius:50%;top:2px;right:2px;
+  box-shadow:0 1px 3px rgba(0,0,0,.25);
+}
+
+.gm-icon-btn{
+  width:40px;height:40px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;color:#444746;transition:background .1s;
+}
+.gm-icon-btn:hover{background:#f1f3f4;}
+
+.gm-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,#f59e0b,#f97316);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:500;cursor:pointer;
+}
+
+/* ── Filter row — exact from source ── */
+.gm-filterbar{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 16px;border-bottom:1px solid #e0e0e0;
+}
+.gm-fb-icon{
+  width:32px;height:32px;border-radius:4px;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;color:#444746;transition:background .1s;
+}
+.gm-fb-icon:hover{background:#f1f3f4;}
+.gm-filter-btn{
+  display:flex;align-items:center;gap:3px;
+  padding:5px 10px;border:1px solid #dadce0;border-radius:4px;
+  font-size:13px;color:#444746;cursor:pointer;transition:background .1s;
+}
+.gm-filter-btn:hover{background:#f1f3f4;}
+.gm-filter-caret{color:#5f6368;font-size:13px;}
+.gm-advsearch{font-size:13px;color:#1a73e8;cursor:pointer;font-weight:500;}
+.gm-advsearch:hover{text-decoration:underline;}
+.gm-pageinfo{font-size:13px;color:#444746;margin-left:auto;display:flex;align-items:center;gap:4px;}
+.gm-pagebtn{
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;color:#bdc1c6;transition:background .1s;
+}
+.gm-pagebtn:hover{background:#f1f3f4;}
+.gm-pagebtn.enabled{color:#444746;}
+
+/* ── Email list ── */
+.gm-list{flex:1;}
+
+/* Each row — exact from source */
+.gm-row{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;cursor:pointer;
+  transition:box-shadow .1s,background .1s;
+  border-bottom:1px solid #f1f3f4;
+}
+.gm-row:hover{
+  box-shadow:0 2px 8px rgba(0,0,0,.1);
+  background:#f2f6fc;z-index:2;position:relative;
+}
+.gm-row.gm-unread{background:#fff;}
+
+/* Checkbox — from source: w-5 h-5 border-2 rounded */
+.gm-cb{
+  width:20px;height:20px;border:2px solid #e0e0e0;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;cursor:pointer;transition:border-color .1s;
+}
+.gm-row:hover .gm-cb{border-color:#444746;}
+
+/* Star */
+.gm-star{color:#e0e0e0;flex-shrink:0;cursor:pointer;transition:color .1s;}
+.gm-row:hover .gm-star{color:#f0b400;}
+
+/* ── Traced double-checkmarks ── */
+/* Replaces their inline-block px-2 py-0.5 rounded-full text pills */
+.traced-badge{position:relative;flex-shrink:0;cursor:pointer;}
+
+.t-checks{display:flex;align-items:center;position:relative;}
+.t-tick{width:14px;height:11px;}
+.t-tick:last-of-type{margin-left:-5px;}
+
+/* States */
+.t-grey .t-tick{color:#bdc1c6;}   /* sent — grey  */
+.t-blue .t-tick{color:#1a73e8;}   /* opened — blue */
+.t-green .t-tick{color:#188038;}  /* fully read — green */
+
+.t-count{
+  position:absolute;bottom:-5px;right:-8px;
+  font-size:8px;font-weight:700;border-radius:5px;min-width:12px;height:12px;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 2px;color:#fff;line-height:1;
+  font-family:'Google Sans',sans-serif;
+}
+.t-blue .t-count{background:#1a73e8;}
+.t-green .t-count{background:#188038;}
+
+/* Tooltip */
+.t-tip{
+  display:none;position:absolute;
+  top:calc(100% + 8px);left:0;
+  background:#202124;color:#fff;
+  font-size:12px;padding:10px 14px;border-radius:8px;
+  white-space:nowrap;z-index:500;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+  line-height:1.65;font-family:'Google Sans',sans-serif;
+  pointer-events:none;
+}
+.t-tip::before{
+  content:'';position:absolute;top:-5px;left:14px;
+  border:5px solid transparent;border-top:0;border-bottom-color:#202124;
+}
+.traced-badge:hover .t-tip{display:block;}
+
+/* Row text — from trackmailbox source */
+.gm-to{
+  font-size:14px;font-weight:500;color:#202124;
+  width:120px;flex-shrink:0;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;
+}
+.gm-row:not(.gm-unread) .gm-to{font-weight:400;color:#444746;}
+
+.gm-body-wrap{
+  flex:1;display:flex;align-items:center;gap:8px;min-width:0;
+}
+.gm-subject{font-size:14px;color:#202124;white-space:nowrap;}
+.gm-row.gm-unread .gm-subject{font-weight:700;}
+.gm-preview{font-size:14px;color:#5f6368;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;}
+.gm-date{font-size:13px;color:#5f6368;white-space:nowrap;flex-shrink:0;}
+.gm-row.gm-unread .gm-date{font-weight:700;color:#202124;}
+
+/* Footer */
+.gm-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;border-top:1px solid #e0e0e0;
+  font-size:12px;color:#9aa0a6;
+}
+.gm-footer a{color:#1a73e8;text-decoration:none;}
+.gm-footer a:hover{text-decoration:underline;}
+.gm-footer-r{display:flex;align-items:center;gap:16px;}
+
+/* ═══════════════════════════════════════
+   APPLE-STYLE STICKY SCROLL STORY
+   Inspired by v0-applestylescroll-momo
+   Each panel pins, text transforms in
+═══════════════════════════════════════ */
+.scroll-story{
+  position:relative;
+  height:500vh;
+}
+.scroll-sticky{
+  position:sticky;top:0;height:100vh;overflow:hidden;
+  display:flex;
+  border-top:1px solid var(--rule);
+}
+
+/* Step indicator column */
+.ss-left{
+  width:200px;flex-shrink:0;
+  border-right:1px solid var(--rule);
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 28px 48px;
+}
+.ss-steps{display:flex;flex-direction:column;}
+.ss-step-item{
+  padding:16px 0;border-top:1px solid var(--rule);
+  font-family:var(--mono);font-size:9px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--faint);
+  transition:color .3s;
+}
+.ss-step-item.act{color:var(--lime);}
+.ss-step-n{font-size:11px;margin-bottom:4px;}
+
+/* Right panel — full height scenes */
+.ss-right{
+  flex:1;position:relative;overflow:hidden;
+  display:flex;align-items:stretch;
+}
+
+.ss-scene{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:60px 72px;
+  opacity:0;pointer-events:none;
+  transition:opacity .5s ease;
+}
+.ss-scene.act{opacity:1;pointer-events:auto;}
+
+/* Big word that clips in from below */
+.ss-headline{
+  font-family:var(--sans);font-weight:800;
+  font-size:clamp(72px,10vw,132px);
+  line-height:0.89;letter-spacing:-4px;
+  color:var(--text);margin-bottom:32px;overflow:visible;
+}
+.ss-headline .line{overflow:visible;display:block;}
+.ss-headline .word{
+  display:inline-block;
+  transform:translateY(108%);
+  transition:transform .7s cubic-bezier(.16,1,.3,1);
+}
+.ss-scene.act .word{transform:translateY(0);}
+.ss-scene.act .word:nth-child(2){transition-delay:.07s;}
+.ss-scene.act .word:nth-child(3){transition-delay:.14s;}
+.ss-scene.act .word:nth-child(4){transition-delay:.21s;}
+.ss-headline em{font-family:var(--serif);font-style:italic;font-weight:300;color:var(--dim);}
+.ss-headline .lime{color:var(--lime);}
+
+.ss-body{
+  font-size:15px;color:var(--dim);line-height:1.8;
+  max-width:480px;font-weight:300;
+  opacity:0;transform:translateY(10px);
+  transition:opacity .5s ease .38s,transform .5s ease .38s;
+}
+.ss-scene.act .ss-body{opacity:1;transform:translateY(0);}
+
+/* Decorative scene number */
+.ss-num{
+  position:absolute;right:56px;bottom:44px;
+  font-family:var(--mono);
+  font-size:clamp(100px,15vw,200px);
+  color:rgba(255,255,255,.025);line-height:1;
+  letter-spacing:-6px;user-select:none;pointer-events:none;
+}
+
+/* Thin accent bar */
+.ss-bar{
+  position:absolute;left:0;top:50%;height:2px;width:0;background:var(--lime);
+  transition:width .9s cubic-bezier(.16,1,.3,1) .05s;
+}
+.ss-scene.act .ss-bar{width:64px;}
+
+/* ═══════════════════════════════════════
+   COMPARE TABLE
+═══════════════════════════════════════ */
+.compare{padding:88px 44px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);}
+.sec-eyebrow{
+  font-family:var(--mono);font-size:10px;color:var(--dim);
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;
+}
+.sec-h{
+  font-family:var(--sans);font-weight:800;
+  font-size:clamp(42px,5.5vw,68px);
+  line-height:.95;letter-spacing:-2.5px;color:var(--text);margin-bottom:14px;
+}
+.sec-h em{font-family:var(--serif);font-style:italic;font-weight:300;color:var(--dim);}
+.sec-sub{font-size:16px;color:var(--dim);margin-bottom:52px;line-height:1.75;font-weight:300;max-width:520px;}
+
+.ctbl{width:100%;border-collapse:collapse;}
+.ctbl th{
+  padding:13px 16px;text-align:center;
+  font-family:var(--mono);font-size:9px;font-weight:500;
+  color:var(--faint);letter-spacing:1.2px;text-transform:uppercase;
+  border-bottom:1px solid var(--rule);
+}
+.ctbl th:first-child{text-align:left;}
+.ctbl th.col-us{color:var(--lime);border-bottom-color:var(--lime);}
+.ctbl td{
+  padding:13px 16px;text-align:center;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  vertical-align:middle;
+}
+.ctbl td:first-child{text-align:left;font-size:13px;color:rgba(255,255,255,.6);}
+.ctbl td.col-us{border-left:1px solid var(--rule);border-right:1px solid var(--rule);}
+.ctbl tr:last-child td{border-bottom:none;}
+.ctbl tbody tr:hover td{background:rgba(255,255,255,.02);}
+.cy{color:var(--lime);font-size:16px;font-weight:700;}
+.cn{color:var(--rule2);font-size:14px;}
+.cp{font-family:var(--mono);font-size:10px;color:var(--faint);}
+
+/* ═══════════════════════════════════════
+   FEATURES GRID
+═══════════════════════════════════════ */
+.features{padding:88px 44px;border-bottom:1px solid var(--rule);}
+.feat-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  margin-top:52px;
+  border-top:1px solid var(--rule);border-left:1px solid var(--rule);
+}
+.feat-card{
+  padding:32px 28px;
+  border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  transition:background .2s;
+}
+.feat-card:hover{background:rgba(200,240,74,.03);}
+.feat-n{font-family:var(--mono);font-size:10px;color:var(--faint);margin-bottom:14px;}
+.feat-name{font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.feat-desc{font-size:13px;color:var(--dim);line-height:1.65;}
+
+/* ═══════════════════════════════════════
+   INSTALL
+═══════════════════════════════════════ */
+.install{
+  padding:88px 44px;display:grid;
+  grid-template-columns:1fr 1fr;gap:88px;
+  border-bottom:1px solid var(--rule);align-items:start;
+}
+.install-sub{font-size:15px;color:var(--dim);line-height:1.75;margin-top:20px;max-width:360px;font-weight:300;}
+.icards{}
+.icard{padding:28px 0;border-bottom:1px solid var(--rule);}
+.icard:last-child{border-bottom:none;}
+.icard-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;}
+.icard-title{font-size:18px;font-weight:700;color:var(--text);}
+.icard-tag{
+  font-family:var(--mono);font-size:9px;color:var(--lime);
+  letter-spacing:1px;text-transform:uppercase;
+  border:1px solid var(--lime);padding:2px 7px;border-radius:3px;
+}
+.isteps{display:flex;flex-direction:column;gap:7px;margin-bottom:20px;}
+.istep{display:flex;gap:10px;font-size:13px;color:var(--dim);}
+.inum{font-family:var(--mono);font-size:9px;color:var(--faint);flex-shrink:0;margin-top:2px;width:16px;}
+
+/* FOOTER */
+footer{
+  padding:36px 44px;display:flex;align-items:center;
+  justify-content:space-between;font-size:12px;color:var(--faint);
+}
+footer a{color:var(--faint);text-decoration:none;}
+footer a:hover{color:var(--dim);}
+.footer-logo{font-size:17px;font-weight:800;color:rgba(255,255,255,.12);}
+.footer-logo span{color:rgba(200,240,74,.2);}
+.footer-slogan{font-family:var(--serif);font-style:italic;color:var(--faint);}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.in{opacity:1;transform:none;}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE — mobile, tablet, desktop
+═══════════════════════════════════════ */
+
+/* === LARGE (1400px+) === */
+@media(min-width:1400px){
+  .hero-h{font-size:clamp(80px,9vw,148px);}
+  .browser-wrap{max-width:1360px;}
+  .demo-section{padding:88px 40px;}
+}
+
+/* === MEDIUM-LARGE (1100px–1399px) — laptops === */
+@media(min-width:1100px) and (max-width:1399px){
+  .demo-section{padding:80px 24px;}
+}
+
+/* === TABLET (600px–1099px) === */
+@media(max-width:1099px){
+  /* Nav */
+  nav{padding:0 24px;}
+  .nav-links a:not(.nav-dl){display:none;}
+
+  /* Hero */
+  .hero{padding:80px 24px 52px;grid-template-columns:1fr;gap:48px;}
+  .hero-left{padding-right:0;}
+  .hero-h{font-size:clamp(48px,8vw,88px);letter-spacing:-3px;}
+  .hero-right{min-height:360px;}
+  .hero-notif{right:-40px;}
+  .hero-notif2{left:-20px;}
+
+  /* Gmail mockup — hide sidebar on tablet */
+  .demo-section{padding:60px 16px;}
+  .gm-sb{display:none;}
+  .gm-main{border-left:none;}
+  .browser-wrap{border-radius:8px;}
+
+  /* Scroll story */
+  .ss-left{display:none;}
+  .ss-scene{padding:48px 40px;}
+  .ss-headline{font-size:clamp(56px,9vw,100px);letter-spacing:-3px;}
+
+  /* Compare */
+  .compare{padding:72px 24px;}
+  .ctbl{font-size:12px;}
+  .ctbl th,.ctbl td{padding:10px 10px;}
+  /* Hide some compare columns on tablet */
+  .ctbl th:nth-child(5),
+  .ctbl td:nth-child(5),
+  .ctbl th:nth-child(6),
+  .ctbl td:nth-child(6){display:none;}
+
+  /* Features */
+  .features{padding:72px 24px;}
+  .feat-grid{grid-template-columns:repeat(2,1fr);}
+
+  /* Install */
+  .install{padding:72px 24px;grid-template-columns:1fr;gap:48px;}
+  footer{padding:28px 24px;}
+}
+
+/* === MOBILE (max 599px) === */
+@media(max-width:599px){
+  /* Nav */
+  nav{padding:0 16px;height:50px;}
+  .nav-wordmark{font-size:16px;}
+  .nav-links a:not(.nav-dl){display:none;}
+  .nav-dl{padding:6px 14px;font-size:12px;}
+
+  /* Hero */
+  .hero{padding:70px 16px 44px;min-height:auto;grid-template-columns:1fr;gap:40px;}
+  .hero-left{padding-right:0;}
+  .hero-h{font-size:clamp(40px,11vw,64px);letter-spacing:-2px;}
+  .hero-desc{font-size:14px;}
+  .hero-actions{flex-direction:column;gap:8px;width:100%;}
+  .btn{justify-content:center;padding:12px 20px;}
+  .hero-right{min-height:300px;}
+  .hero-notif{right:-10px;width:170px;}
+  .hero-notif2{left:-10px;width:160px;}
+  .hero-card{width:240px;}
+
+  /* Marquee */
+  .m-item{font-size:9px;gap:16px;padding:0 16px;}
+
+  /* Gmail mockup — hide sidebar, simplify on mobile */
+  .demo-section{padding:48px 12px;}
+  .eyebrow{margin-bottom:24px;}
+  .gm-sb{display:none;}
+  .gm-main{border-left:none;}
+  .browser-wrap{border-radius:6px;}
+  .chrome-bar{padding:8px 10px 0;}
+  .chrome-url{font-size:10px;padding:4px 10px;}
+  .chrome-tab{font-size:10px;padding:6px 12px 0;}
+  .gm-topbar{padding:6px 10px;gap:8px;}
+  .gm-topbar-right{gap:4px;}
+  .gm-active-pill{display:none;}
+  .gm-tracking-pill{padding:4px 8px;font-size:11px;}
+  .gm-toggle{width:28px;height:16px;}
+  .gm-filterbar{padding:4px 10px;gap:4px;flex-wrap:wrap;}
+  .gm-filter-btn{font-size:11px;padding:3px 7px;}
+  .gm-advsearch{display:none;}
+  .gm-row{padding:8px 10px;height:auto;min-height:44px;}
+  .gm-to{width:80px;font-size:13px;}
+  .gm-subject,.gm-preview{font-size:13px;}
+  .gm-date{font-size:11px;}
+  .gm-footer{font-size:10px;padding:8px 10px;}
+
+  /* Scroll story */
+  .scroll-story{height:450vh;}
+  .ss-left{display:none;}
+  .ss-scene{padding:40px 20px;}
+  .ss-headline{font-size:clamp(44px,12vw,68px);letter-spacing:-2px;margin-bottom:20px;}
+  .ss-body{font-size:14px;}
+  .ss-num{display:none;}
+
+  /* Compare — show only 2 columns on mobile */
+  .compare{padding:56px 16px;}
+  .sec-h{font-size:clamp(32px,9vw,52px);letter-spacing:-1.5px;}
+  .ctbl th:nth-child(n+3),
+  .ctbl td:nth-child(n+3){display:none;}
+  .ctbl th,.ctbl td{padding:9px 12px;font-size:12px;}
+
+  /* Features — 1 col */
+  .features{padding:56px 16px;}
+  .feat-grid{grid-template-columns:1fr;}
+  .feat-card{padding:24px 20px;}
+
+  /* Install */
+  .install{padding:56px 16px;grid-template-columns:1fr;gap:36px;}
+  .install-sub{font-size:14px;}
+
+  /* Footer */
+  footer{padding:24px 16px;flex-direction:column;align-items:flex-start;gap:12px;}
+  .footer-slogan{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">
+    <span class="nav-wordmark">Traced<span>.</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="#demo">Demo</a>
+    <a href="#how">How it works</a>
+    <a href="#compare">Compare</a>
+    <a href="#install">Install</a>
+    <a href="#install" class="nav-dl">Download Free</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <!-- Left: headline + CTA -->
+  <div class="hero-left">
+    <h1 class="hero-h">
+      Read what's<br/>
+      been read.<br/>
+      <em>Trace&nbsp;it.</em>
+    </h1>
+    <p class="hero-desc">Three-state receipts — sent, opened, fully read. Device info, timestamps, link clicks. No watermarks, no limits, forever free.</p>
+    <div class="hero-actions">
+      <a href="#install" class="btn btn-lime">↓ Download Extension</a>
+      <a href="#demo" class="btn btn-ghost">See demo</a>
+    </div>
+  </div>
+
+  <!-- Right: animated visual -->
+  <div class="hero-right">
+    <!-- Pulsing rings -->
+    <div class="hero-ring"></div>
+    <div class="hero-ring"></div>
+    <div class="hero-ring"></div>
+
+    <!-- Floating notification — top right -->
+    <div class="hero-notif">
+      <div class="hero-notif-icon">✓</div>
+      <div class="hero-notif-text">
+        <div class="hero-notif-title">Fully Read</div>
+        <div class="hero-notif-sub">John Smith · iPhone<br/>2 min ago</div>
+      </div>
+    </div>
+
+    <!-- Central card -->
+    <div class="hero-card">
+      <div class="hero-card-label">Sent — 3 emails</div>
+
+      <!-- Row 1: animating through states -->
+      <div class="hero-email-row">
+        <div class="hero-checks state-animated">
+          <svg class="hero-tick" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg class="hero-tick" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="hero-email-info">
+          <div class="hero-email-name">John Smith</div>
+          <div class="hero-email-sub">Partnership Proposal — Q3</div>
+        </div>
+        <div class="hero-email-time">2:47 PM</div>
+      </div>
+
+      <!-- Row 2: blue (opened) -->
+      <div class="hero-email-row">
+        <div class="hero-checks state-blue" style="position:relative;">
+          <svg class="hero-tick" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg class="hero-tick" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="hero-badge">1</span>
+        </div>
+        <div class="hero-email-info">
+          <div class="hero-email-name">Sarah Chen</div>
+          <div class="hero-email-sub">Summer Research Program</div>
+        </div>
+        <div class="hero-email-time">10:08 AM</div>
+      </div>
+
+      <!-- Row 3: grey (unopened) -->
+      <div class="hero-email-row">
+        <div class="hero-checks state-grey">
+          <svg class="hero-tick" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg class="hero-tick" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="hero-email-info">
+          <div class="hero-email-name">Marcus Webb</div>
+          <div class="hero-email-sub">Internship at Nexus Labs</div>
+        </div>
+        <div class="hero-email-time">9:32 AM</div>
+      </div>
+    </div>
+
+    <!-- Floating tag — bottom left -->
+    <div class="hero-notif2">
+      <div class="hero-notif2-dot"></div>
+      <div class="hero-notif2-text">
+        <span>iPhone · Safari</span><br/>Opened 3:14 PM
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="m-inner" aria-hidden="true">
+    <div class="m-item">100% Free <span class="m-dot">◆</span> No Watermarks <span class="m-dot">◆</span> Unlimited <span class="m-dot">◆</span> Fully Read Detection <span class="m-dot">◆</span> Gmail + Outlook + Yahoo <span class="m-dot">◆</span> Mobile Detection <span class="m-dot">◆</span> Link Tracking <span class="m-dot">◆</span> Notifications <span class="m-dot">◆</span> Open Source <span class="m-dot">◆</span> In-Gmail Analytics</div>
+    <div class="m-item">100% Free <span class="m-dot">◆</span> No Watermarks <span class="m-dot">◆</span> Unlimited <span class="m-dot">◆</span> Fully Read Detection <span class="m-dot">◆</span> Gmail + Outlook + Yahoo <span class="m-dot">◆</span> Mobile Detection <span class="m-dot">◆</span> Link Tracking <span class="m-dot">◆</span> Notifications <span class="m-dot">◆</span> Open Source <span class="m-dot">◆</span> In-Gmail Analytics</div>
+  </div>
+</div>
+
+<!-- GMAIL MOCKUP — exact trackmailbox.com source HTML, adapted -->
+<section class="demo-section reveal" id="demo">
+  <div class="eyebrow">Live demo — hover the checkmarks</div>
+  <div class="browser-wrap">
+    <!-- Chrome titlebar -->
+    <div class="chrome-bar">
+      <div class="chrome-top">
+        <div class="chrome-dots">
+          <div class="chrome-dot" style="background:#ff5f57"></div>
+          <div class="chrome-dot" style="background:#ffbd2e"></div>
+          <div class="chrome-dot" style="background:#28c840"></div>
+        </div>
+        <div class="chrome-url">
+          <div class="chrome-greenlock"></div>
+          mail.google.com
+        </div>
+        <div style="width:28px"></div>
+      </div>
+      <div class="chrome-tabs">
+        <div class="chrome-tab">
+          <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" 
+               alt="" style="width:14px;height:14px;object-fit:contain;"/>
+          Gmail — Sent
+        </div>
+      </div>
+    </div>
+
+    <!-- Gmail application — exact from trackmailbox source -->
+    <div class="gmail-wrap">
+
+      <!-- Sidebar -->
+      <div class="gm-sb">
+        <div class="gm-sb-header">
+          <!-- Real Gmail logo from Google static CDN -->
+          <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_1x_r5.png" 
+               srcset="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_2x_r5.png 2x"
+               alt="Gmail" style="height:28px;width:auto;object-fit:contain;" loading="eager"/>
+        </div>
+
+        <button class="gm-compose-btn">
+          <!-- Real Gmail compose icon - pencil/edit -->
+          <svg class="gm-compose-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+          </svg>
+          <span class="gm-compose-label">Compose</span>
+        </button>
+
+        <ul class="gm-sb-nav">
+          <!-- Mail with 99+ badge -->
+          <li>
+            <div class="gm-ni">
+              <div style="position:relative;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                <span style="position:absolute;top:-4px;right:-6px;background:#d93025;color:#fff;font-size:9px;font-weight:700;padding:1px 4px;border-radius:8px;min-width:14px;text-align:center;">99+</span>
+              </div>
+              <span>Mail</span>
+            </div>
+          </li>
+          <li>
+            <div class="gm-ni">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+              <span>Chat</span>
+            </div>
+          </li>
+          <li>
+            <div class="gm-ni">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+              <span>Meet</span>
+            </div>
+          </li>
+        </ul>
+
+        <div class="gm-divider"></div>
+
+        <ul class="gm-sb-nav">
+          <li>
+            <div class="gm-ni">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5v-3h3.56c.69 1.19 1.97 2 3.45 2s2.75-.81 3.45-2H19v3zm0-5h-4.99c0 1.1-.9 2-2 2s-2-.9-2-2H5V5h14v9z"/></svg>
+              <span>Inbox</span>
+            </div>
+            <span class="gm-ni-badge">930</span>
+          </li>
+          <li>
+            <div class="gm-ni">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              <span>Starred</span>
+            </div>
+          </li>
+          <li>
+            <div class="gm-ni">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:#444746"><path d="M12 1a11 11 0 1 0 0 22A11 11 0 0 0 12 1zm0 20a9 9 0 1 1 0-18 9 9 0 0 1 0 18zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V8z"/></svg>
+              <span>Snoozed</span>
+            </div>
+          </li>
+          <li class="gm-active">
+            <div class="gm-ni">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+              <span>Sent</span>
+            </div>
+          </li>
+          <li>
+            <div class="gm-ni">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+              <span>Drafts</span>
+            </div>
+            <span class="gm-ni-badge">2</span>
+          </li>
+        </ul>
+
+        <div class="gm-labels-row">
+          <span>Labels</span>
+          <div class="gm-labels-plus">+</div>
+        </div>
+      </div>
+
+      <!-- Main pane -->
+      <div class="gm-main">
+
+        <!-- Top bar — exact match to trackmailbox screenshot -->
+        <div class="gm-topbar">
+          <div class="gm-hamburger">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+          </div>
+
+          <div class="gm-search">
+            <svg class="gm-search-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <span class="gm-search-txt">in:sent</span>
+            <div style="flex:1"></div>
+            <div class="gm-search-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </div>
+            <div class="gm-search-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>
+            </div>
+          </div>
+
+          <div class="gm-topbar-right">
+            <!-- Active pill -->
+            <button class="gm-active-pill">
+              <div class="gm-active-dot"></div>
+              <span>Active</span>
+              <svg class="gm-caret" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+            </button>
+
+            <!-- Tracking On toggle -->
+            <button class="gm-tracking-pill">
+              <div class="gm-tracking-check">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              </div>
+              <span>Tracking On</span>
+              <div class="gm-toggle"></div>
+            </button>
+
+            <!-- Help -->
+            <button class="gm-icon-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+            </button>
+
+            <!-- Settings -->
+            <button class="gm-icon-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+
+
+          </div>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="gm-filterbar">
+          <div class="gm-fb-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+          </div>
+          <div class="gm-fb-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+          </div>
+          <div class="gm-fb-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+          </div>
+          <button class="gm-filter-btn">Any time <svg class="gm-filter-caret" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg></button>
+          <button class="gm-filter-btn">Has attachment</button>
+          <button class="gm-filter-btn">To <svg class="gm-filter-caret" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg></button>
+          <span class="gm-advsearch">Advanced search</span>
+          <div class="gm-pageinfo">
+            1–3 of 3
+            <div class="gm-pagebtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+            </div>
+            <div class="gm-pagebtn enabled">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email rows -->
+        <div class="gm-list">
+
+          <!-- Row 1: Fully read 2× — green ✓✓ with count 2 -->
+          <div class="gm-row gm-unread">
+            <div class="gm-cb">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="opacity:0"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <svg class="gm-star" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+
+            <div class="traced-badge">
+              <div class="t-checks t-green">
+                <svg class="t-tick" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg class="t-tick" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="t-count">2</span>
+              </div>
+              <div class="t-tip">✅ <strong>Fully read 2 times</strong><br/>Last: Today, 2:47 PM<br/>📱 iPhone · Gmail App<br/><span style="font-size:10px;color:#888">Click for full analytics</span></div>
+            </div>
+
+            <span class="gm-to">To: John Smith</span>
+            <div class="gm-body-wrap">
+              <span class="gm-subject">Partnership Proposal — Q3 Initiative</span>
+              <span class="gm-preview">Hi John, Following up on our call last week about the co-marketing partnership...</span>
+            </div>
+            <span class="gm-date">Feb 4</span>
+          </div>
+
+          <!-- Row 2: Opened 1× — blue ✓✓ with count 1 -->
+          <div class="gm-row">
+            <div class="gm-cb">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="opacity:0"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <svg class="gm-star" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+
+            <div class="traced-badge">
+              <div class="t-checks t-blue">
+                <svg class="t-tick" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg class="t-tick" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="t-count">1</span>
+              </div>
+              <div class="t-tip">👁 <strong>Opened, not fully read</strong><br/>Clicked 1 link · Today, 10:08 AM<br/>💻 MacBook · Apple Mail</div>
+            </div>
+
+            <span class="gm-to">To: Sarah Chen</span>
+            <div class="gm-body-wrap">
+              <span class="gm-subject">Summer Research Program — Application</span>
+              <span class="gm-preview">Hi Sarah, I wanted to follow up on my research program application submitted last...</span>
+            </div>
+            <span class="gm-date">Feb 4</span>
+          </div>
+
+          <!-- Row 3: Unopened — grey ✓✓ -->
+          <div class="gm-row">
+            <div class="gm-cb">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="opacity:0"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <svg class="gm-star" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+
+            <div class="traced-badge">
+              <div class="t-checks t-grey">
+                <svg class="t-tick" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg class="t-tick" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="t-tip">⏳ <strong>Not yet opened</strong><br/>Sent today, 9:32 AM<br/>Waiting for Marcus Webb</div>
+            </div>
+
+            <span class="gm-to">To: Marcus Webb</span>
+            <div class="gm-body-wrap">
+              <span class="gm-subject">Internship Opportunity at Nexus Labs</span>
+              <span class="gm-preview">Hi Marcus, I'd love to discuss the software engineering internship role opening...</span>
+            </div>
+            <span class="gm-date">Feb 4</span>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="gm-footer">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <a href="#">Program Policies</a>
+<span>Powered by <a href="https://traced.mikaelsyed.me" style="color:#1a73e8;text-decoration:none">Traced</a></span>
+          </div>
+          <div class="gm-footer-r">
+            <span>Last account activity: 1 hour ago</span>
+            <a href="#">Details</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- APPLE-STYLE STICKY SCROLL STORY -->
+<section class="scroll-story" id="how">
+  <div class="scroll-sticky">
+
+    <!-- Left step labels -->
+    <div class="ss-left">
+      <div class="ss-steps">
+        <div class="ss-step-item act" id="sn0">
+          <div class="ss-step-n">01</div>Send
+        </div>
+        <div class="ss-step-item" id="sn1">
+          <div class="ss-step-n">02</div>Open
+        </div>
+        <div class="ss-step-item" id="sn2">
+          <div class="ss-step-n">03</div>Read
+        </div>
+        <div class="ss-step-item" id="sn3">
+          <div class="ss-step-n">04</div>Notify
+        </div>
+      </div>
+    </div>
+
+    <!-- Full-height typographic scenes -->
+    <div class="ss-right">
+
+      <div class="ss-scene act" id="sc0">
+        <div class="ss-bar"></div>
+        <div class="ss-headline">
+          <span class="line"><span class="word">You hit</span></span>
+          <span class="line"><span class="word"><em>Send.</em></span></span>
+        </div>
+        <p class="ss-body">Traced silently instruments your email. An invisible pixel at the top. A second at the very bottom. Your recipient sees nothing out of the ordinary.</p>
+        <div class="ss-num">01</div>
+      </div>
+
+      <div class="ss-scene" id="sc1">
+        <div class="ss-bar"></div>
+        <div class="ss-headline">
+          <span class="line"><span class="word">They</span></span>
+          <span class="line"><span class="word">open</span></span>
+          <span class="line"><span class="word"><em>the email.</em></span></span>
+        </div>
+        <p class="ss-body">The top pixel fires the instant they open — on iPhone, Android, Outlook on Windows, Apple Mail. Device type, email client, and timestamp captured automatically.</p>
+        <div class="ss-num">02</div>
+      </div>
+
+      <div class="ss-scene" id="sc2">
+        <div class="ss-bar"></div>
+        <div class="ss-headline">
+          <span class="line"><span class="word">Grey.</span></span>
+          <span class="line"><span class="word" style="color: #3699e0;">Blue.</span></span>
+          <span class="line"><span class="word lime">Green.</span></span>
+        </div>
+        <p class="ss-body">When they scroll all the way to the bottom, the second pixel fires. Your checkmarks shift from grey → blue → green. You know they read every word — not just opened and closed it.</p>
+        <div class="ss-num">03</div>
+      </div>
+
+      <div class="ss-scene" id="sc3">
+        <div class="ss-bar"></div>
+        <div class="ss-headline">
+          <span class="line"><span class="word">You know</span></span>
+          <span class="line"><span class="word lime"><em>instantly.</em></span></span>
+        </div>
+        <p class="ss-body">A desktop notification fires the moment your email is opened or fully read — with device, email client, and exact timestamp. No dashboard required.</p>
+        <div class="ss-num">04</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="compare reveal" id="compare">
+  <div class="sec-eyebrow">Why Traced</div>
+  <div class="sec-h">The competition charges.<br/><em>We don't.</em></div>
+  <p class="sec-sub">Every other tracker limits you, watermarks your emails, or charges you. Traced doesn't.</p>
+  <table class="ctbl">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th class="col-us">Traced</th>
+        <th>Mailsuite</th>
+        <th>Mixmax</th>
+        <th>Hunter</th>
+        <th>Yesware</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>100% Free Forever</td><td class="col-us"><span class="cy">✓</span></td><td><span class="cn">✕</span></td><td><span class="cn">✕</span></td><td><span class="cp">Limited</span></td><td><span class="cn">✕</span></td></tr>
+      <tr><td>No Watermark</td><td class="col-us"><span class="cy">✓</span></td><td><span class="cn">✕</span></td><td><span class="cn">✕</span></td><td><span class="cn">✕</span></td><td><span class="cn">✕</span></td></tr>
+      <tr><td>Unlimited Tracked Emails</td><td class="col-us"><span class="cy">✓</span></td><td><span class="cp">Paid</span></td><td><span class="cp">40/mo free</span></td><td><span class="cp">100/mo free</span></td><td><span class="cp">Paid</span></td></tr>
+      <tr><td>"Fully Read" Detection</td><td class="col-us"><span class="cy">✓</span></td><td><span class="cn">✕</span></td><td><span class="cn">✕</span></td><td><span class="cn">✕</span></td><td><span class="cn">✕</span></td></tr>
+      <tr><td>3-State Checkmarks</td><td class="col-us"><span class="cy">✓</span></td><td><span class="cn">✕</span></td><td><span class="cn">✕</span></td><td><span class="cn">✕</span></td><td><span class="cn">✕</span></td></tr>
+      <tr><td>Gmail + Outlook + Yahoo</td><td class="col-us"><span class="cy">✓</span></td><td><span class="cp">Gmail only</span></td><td><span class="cp">Gmail only</span></td><td><span class="cp">Gmail only</span></td><td><span class="cp">Gmail + Outlook</span></td></tr>
+      <tr><td>Mobile Device Detection</td><td class="col-us"><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cp">Paid</span></td><td><span class="cn">✕</span></td><td><span class="cp">Paid</span></td></tr>
+      <tr><td>Link Click Tracking</td><td class="col-us"><span class="cy">✓</span></td><td><span class="cp">Paid</span></td><td><span class="cp">Paid</span></td><td><span class="cy">✓</span></td><td><span class="cp">Paid</span></td></tr>
+      <tr><td>In-Gmail Analytics</td><td class="col-us"><span class="cy">✓</span></td><td><span class="cp">Dashboard only</span></td><td><span class="cp">Paid</span></td><td><span class="cn">✕</span></td><td><span class="cp">Paid</span></td></tr>
+      <tr><td>Open Source</td><td class="col-us"><span class="cy">✓</span></td><td><span class="cn">✕</span></td><td><span class="cn">✕</span></td><td><span class="cn">✕</span></td><td><span class="cn">✕</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- FEATURES -->
+<section class="features reveal" id="features">
+  <div class="sec-eyebrow">What you get</div>
+  <div class="sec-h">More than any<br/><em>paid tool.</em></div>
+  <div class="feat-grid">
+    <div class="feat-card"><div class="feat-n">01</div><div class="feat-name">3-State Checkmarks</div><div class="feat-desc">Grey = sent. Blue = opened. Green = fully read. No other tracker has the third state. Hover for device, client, timestamp.</div></div>
+    <div class="feat-card"><div class="feat-n">02</div><div class="feat-name">Bottom Pixel Detection</div><div class="feat-desc">A second invisible pixel at the foot of your email fires only when the recipient scrolls all the way through. True engagement.</div></div>
+    <div class="feat-card"><div class="feat-n">03</div><div class="feat-name">Mobile Aware</div><div class="feat-desc">Detects iPhone, Android, iPad, desktop. Knows which email client they used — automatically, with every open.</div></div>
+    <div class="feat-card"><div class="feat-n">04</div><div class="feat-name">Link Click Tracking</div><div class="feat-desc">Links look normal to recipients but route through Traced. Know which link, when, and on what device.</div></div>
+    <div class="feat-card"><div class="feat-n">05</div><div class="feat-name">In-Gmail Analytics</div><div class="feat-desc">Click any checkmark to open a panel with a timeline, hourly chart, and device breakdown — without leaving Gmail.</div></div>
+    <div class="feat-card"><div class="feat-n">06</div><div class="feat-name">Works Everywhere</div><div class="feat-desc">Extension works in Gmail, Outlook Web, Yahoo Mail, Proton Mail. Recipients can open on any device, anywhere.</div></div>
+  </div>
+</section>
+
+<!-- INSTALL -->
+<section class="install reveal" id="install">
+  <div>
+    <div class="sec-eyebrow">Get started</div>
+    <div class="sec-h">Install in<br/><em>60 seconds.</em></div>
+    <p class="install-sub">No account. No signup. No credit card. Load the extension and start tracking immediately.</p>
+  </div>
+  <div class="icards">
+    <div class="icard">
+      <div class="icard-head">
+        <span class="icard-title">Chrome Extension</span>
+        <span class="icard-tag">Recommended</span>
+      </div>
+      <div class="isteps">
+        <div class="istep"><span class="inum">01</span>Download the .zip file below</div>
+        <div class="istep"><span class="inum">02</span>Open chrome://extensions</div>
+        <div class="istep"><span class="inum">03</span>Enable "Developer Mode"</div>
+        <div class="istep"><span class="inum">04</span>Click "Load unpacked" → select the folder</div>
+        <div class="istep"><span class="inum">05</span>Open Gmail — Traced is active</div>
+      </div>
+      <a href="/downloads/traced-extension.zip" class="btn btn-lime">↓ Download Extension (.zip)</a>
+    </div>
+    <div class="icard">
+      <div class="icard-head">
+        <span class="icard-title">Self-Host</span>
+        <span class="icard-tag">Open Source</span>
+      </div>
+      <div class="isteps">
+        <div class="istep"><span class="inum">01</span>Clone from GitHub</div>
+        <div class="istep"><span class="inum">02</span>Deploy to Render (free)</div>
+        <div class="istep"><span class="inum">03</span>Set BASE_URL env variable</div>
+        <div class="istep"><span class="inum">04</span>Update API constant in extension</div>
+        <div class="istep"><span class="inum">05</span>Load in Chrome — done</div>
+      </div>
+      <a href="https://github.com/mikaelsyed/traced" class="btn btn-ghost">View on GitHub →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-logo">Traced<span>.</span></span>
+  <span class="footer-slogan">Read what's been read. Trace it.</span>
+  <span><a href="/privacy">Privacy</a> · <a href="mailto:hello@mikaelsyed.me">Contact</a> · © 2025 mikaelsyed.me</span>
+</footer>
+
+<script>
+/* ══════════════════════════════════════
+   SCROLL STORY
+══════════════════════════════════════ */
+const story  = document.getElementById('how');
+const scenes = [0,1,2,3].map(i=>document.getElementById(`sc${i}`));
+const snavs  = [0,1,2,3].map(i=>document.getElementById(`sn${i}`));
+let cur = -1;
+
+function setScene(n){
+  if(cur===n)return;cur=n;
+  scenes.forEach((s,i)=>s.classList.toggle('act',i===n));
+  snavs.forEach((s,i)=>s.classList.toggle('act',i===n));
+}
+
+window.addEventListener('scroll',()=>{
+  if(!story)return;
+  const rect=story.getBoundingClientRect();
+  const scrolled=Math.max(0,-rect.top);
+  const max=story.offsetHeight-window.innerHeight;
+  const p=Math.min(1,scrolled/Math.max(1,max));
+  if(p<.22)setScene(0);
+  else if(p<.47)setScene(1);
+  else if(p<.72)setScene(2);
+  else setScene(3);
+},{passive:true});
+setScene(0);
+
+/* ══════════════════════════════════════
+   REVEAL ON SCROLL
+══════════════════════════════════════ */
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});
+},{threshold:.07});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
