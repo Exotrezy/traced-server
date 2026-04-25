@@ -8,7 +8,7 @@ compatibility_flags = ["nodejs_compat"]
 # paste the id you get below
 [[kv_namespaces]]
 binding = "TRACED_KV"
-id = "PASTE_YOUR_KV_ID_HERE"
+id = "48c69f385cc34703b6341a84b72404f9"
 
 # Serve static files (landing page, dashboard, privacy)
 [assets]
