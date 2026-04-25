@@ -26,7 +26,7 @@
 html,body{height:100%;overflow:hidden;}
 body{background:var(--ink);color:var(--text);font-family:var(--sans);font-size:13px;display:flex;flex-direction:column;}
 
-/* ── TOPBAR ── */
+/* top bar */
 .topbar{
   display:flex;align-items:center;justify-content:space-between;
   padding:0 28px;height:52px;
@@ -63,10 +63,10 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);font-size:1
 }
 .tbtn:hover{border-color:rgba(255,255,255,0.3);color:var(--text);}
 
-/* ── LAYOUT ── */
+/* layout */
 .layout{display:flex;flex:1;overflow:hidden;}
 
-/* ── SIDEBAR ── */
+/* sidebar */
 .sb{
   width:200px;background:var(--surface);
   border-right:1px solid var(--rule);
@@ -104,12 +104,12 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);font-size:1
 
 .sb-divider{height:1px;background:var(--rule);margin:14px 0;}
 
-/* ── MAIN ── */
+/* main */
 .main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
 .main::-webkit-scrollbar{width:4px;}
 .main::-webkit-scrollbar-thumb{background:#222;border-radius:2px;}
 
-/* ── STAT STRIP ── */
+/* stat strip */
 .stat-strip{
   display:grid;grid-template-columns:repeat(4,1fr);
   border-bottom:1px solid var(--rule);
@@ -138,14 +138,14 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);font-size:1
   margin-top:6px;letter-spacing:0.5px;
 }
 
-/* ── CONTENT AREA ── */
+/* content */
 .content{
   flex:1;display:grid;
   grid-template-columns:1fr 280px;
   overflow:hidden;
 }
 
-/* ── EMAIL TABLE PANEL ── */
+/* email table panel */
 .table-panel{
   border-right:1px solid var(--rule);
   overflow:hidden;display:flex;flex-direction:column;
@@ -170,7 +170,7 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);font-size:1
 }
 .panel-action:hover{color:var(--dim);}
 
-/* Table header */
+/* table header */
 .eth{
   display:grid;
   grid-template-columns:32px 1fr 100px 90px 48px 80px;
@@ -185,7 +185,7 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);font-size:1
 .email-rows::-webkit-scrollbar{width:3px;}
 .email-rows::-webkit-scrollbar-thumb{background:#1c1c1a;border-radius:2px;}
 
-/* Email row */
+/* email row */
 .etr{
   display:grid;
   grid-template-columns:32px 1fr 100px 90px 48px 80px;
@@ -197,7 +197,7 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);font-size:1
 .etr:hover{background:rgba(255,255,255,0.02);}
 .etr:last-child{border-bottom:none;}
 
-/* State indicator — just a dot and text */
+/* state indicator — just a dot and text */
 .state-dot{
   width:6px;height:6px;border-radius:50%;flex-shrink:0;
 }
@@ -231,13 +231,13 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);font-size:1
   font-family:var(--mono);font-size:10px;color:var(--faint);
 }
 
-/* ── RIGHT PANEL ── */
+/* right panel */
 .right-panel{
   display:flex;flex-direction:column;
   overflow:hidden;
 }
 
-/* Hourly chart */
+/* hourly chart */
 .chart-section{
   padding:20px 20px 16px;
   border-bottom:1px solid var(--rule);
@@ -260,7 +260,7 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);font-size:1
 .hcol:hover .hbar{background:var(--dim);}
 .hlb{font-family:var(--mono);font-size:6px;color:var(--faint);}
 
-/* Device breakdown */
+/* device breakdown */
 .device-section{
   padding:16px 20px;
   border-bottom:1px solid var(--rule);
@@ -274,7 +274,7 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);font-size:1
 .device-bar-fill{height:100%;background:rgba(255,255,255,0.3);border-radius:2px;}
 .device-pct{font-family:var(--mono);font-size:9px;color:var(--faint);width:28px;text-align:right;}
 
-/* Activity feed */
+/* activity feed */
 .activity-section{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 
 .act-feed{flex:1;overflow-y:auto;}
@@ -304,7 +304,7 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);font-size:1
 }
 .act-time{font-family:var(--mono);font-size:9px;color:var(--faint);flex-shrink:0;}
 
-/* ── DETAIL DRAWER ── */
+/* detail drawer*/
 .drawer{
   position:fixed;top:52px;right:-360px;width:340px;
   height:calc(100vh - 52px);
@@ -479,7 +479,7 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);font-size:1
 <script>
 const API = 'https://traced.mikaelsyed.me';
 
-// ── MOCK DATA (shown when no live connection) ──
+// ── mock data (shown when no live connection) ──
 const MOCK = [
   {trackingId:'t1',subject:'Q4 Proposal — let me know your thoughts',recipient:'sarah.m@acme.com',state:'fully_read',openCount:3,fullyReadCount:3,createdAt:'2025-04-14T09:00:00Z',lastOpened:'2025-04-14T15:14:00Z',opens:[{time:'2025-04-14T09:42:00Z',device:'mobile',client:'Gmail App'},{time:'2025-04-14T15:14:00Z',device:'mobile',client:'Gmail App'}],timeline:[{type:'opened',time:'2025-04-14T09:42:00Z',device:'mobile',client:'Gmail App'},{type:'fully_read',time:'2025-04-14T15:14:00Z',device:'mobile',client:'Gmail App'}]},
   {trackingId:'t2',subject:'Following up on the design review',recipient:'james.k@design.co',state:'opened',openCount:1,fullyReadCount:0,createdAt:'2025-04-13T11:00:00Z',lastOpened:'2025-04-13T13:22:00Z',opens:[{time:'2025-04-13T13:22:00Z',device:'desktop',client:'Outlook'}],timeline:[{type:'opened',time:'2025-04-13T13:22:00Z',device:'desktop',client:'Outlook'}]},
