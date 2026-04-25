@@ -21,3 +21,18 @@ BASE_URL = "https://traced.mikaelsyed.me"
 [[routes]]
 pattern = "traced.mikaelsyed.me/*"
 zone_name = "mikaelsyed.me"
+
+[observability]
+enabled = false
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = false
+persist = true
+head_sampling_rate = 1
