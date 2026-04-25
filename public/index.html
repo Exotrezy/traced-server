@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200;12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
 <style>
-/* ── TOKENS ── */
+/* tokens */
 :root{
   --bg:#0b0b09;
   --bg2:#111110;
@@ -28,7 +28,7 @@ html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);overflow-x:hidden;}
 ::selection{background:var(--lime);color:#0b0b09;}
 
-/* ── NAV ── */
+/* nav */
 nav{
   position:fixed;inset:0 0 auto;z-index:300;
   display:flex;align-items:center;justify-content:space-between;
@@ -57,7 +57,7 @@ nav{
 }
 .nav-dl:hover{opacity:.86;}
 
-/* ── HERO ── */
+/* hero */
 .hero{
   min-height:100vh;display:grid;
   grid-template-columns:1fr 1fr;
@@ -85,7 +85,7 @@ nav{
 .hero-desc{font-size:16px;color:var(--dim);line-height:1.75;max-width:420px;font-weight:300;margin-bottom:32px;}
 .hero-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
 
-/* ── HERO RIGHT — animated visual ── */
+/* hero animated visual */
 .hero-right{
   position:relative;
   display:flex;align-items:center;justify-content:center;
@@ -104,7 +104,7 @@ nav{
   opacity:.4;
 }
 
-/* The central phone-like card */
+/* The central card */
 .hero-card{
   position:relative;z-index:2;
   width:280px;
@@ -124,7 +124,7 @@ nav{
 }
 .hero-email-row:last-of-type{border-bottom:none;}
 
-/* Checkmark states */
+/* checkmark status */
 .hero-checks{display:flex;align-items:center;position:relative;flex-shrink:0;}
 .hero-tick{width:13px;height:11px;}
 .hero-tick:last-child{margin-left:-4px;}
@@ -132,7 +132,7 @@ nav{
 .state-blue .hero-tick{color:#1a73e8;}
 .state-green .hero-tick{color:#34a853;}
 
-/* Count badge */
+/* count badge */
 .hero-badge{
   position:absolute;bottom:-5px;right:-8px;
   font-size:8px;font-weight:700;border-radius:5px;
@@ -148,7 +148,7 @@ nav{
 .hero-email-sub{font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
 .hero-email-time{font-family:var(--mono);font-size:10px;color:var(--faint);flex-shrink:0;}
 
-/* Floating notification bubble */
+/* notification bubble */
 .hero-notif{
   position:absolute;top:45px;right: -25px;
   background:#1e1e1c;border:1px solid var(--rule2);
@@ -168,7 +168,7 @@ nav{
 .hero-notif-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:2px;}
 .hero-notif-sub{font-size:10px;color:var(--dim);line-height:1.4;}
 
-/* Second floating bubble */
+/* second floating bubble */
 .hero-notif2{
   position:absolute;bottom:80px;left:-80px;
   background:#1e1e1c;border:1px solid var(--rule2);
@@ -196,7 +196,7 @@ nav{
   50%{transform:translateY(8px);}
 }
 
-/* Animated ring pulse behind card */
+/* animated pulse behind card */
 .hero-ring{
   position:absolute;z-index:1;
   width:320px;height:320px;border-radius:50%;
@@ -239,9 +239,7 @@ nav{
 }
 .m-dot{color:var(--lime);font-size:6px;}
 
-/* ═══════════════════════════════════════
-   GMAIL MOCKUP — exact trackmailbox.com source
-═══════════════════════════════════════ */
+/* gmail mockup */
 .demo-section{padding:80px 20px;border-bottom:1px solid var(--rule);}
 .eyebrow{
   font-family:var(--mono);font-size:10px;color:var(--dim);
@@ -286,7 +284,7 @@ nav{
   min-height:620px;
 }
 
-/* Sidebar — exact from trackmailbox source */
+/* Sidebar */
 .gm-sb{
   width:256px;flex-shrink:0;background:#fff;
   padding:8px 0;display:flex;flex-direction:column;
@@ -335,7 +333,7 @@ nav{
 /* Main pane */
 .gm-main{flex:1;display:flex;flex-direction:column;border-left:1px solid #e0e0e0;min-width:0;}
 
-/* ── Top bar — trackmailbox exact ── */
+/* Top bar */
 .gm-topbar{
   display:flex;align-items:center;gap:14px;
   padding:8px 16px;border-bottom:1px solid #e0e0e0;
@@ -506,7 +504,7 @@ nav{
 }
 .traced-badge:hover .t-tip{display:block;}
 
-/* Row text — from trackmailbox source */
+/* Row text */
 .gm-to{
   font-size:14px;font-weight:500;color:#202124;
   width:120px;flex-shrink:0;white-space:nowrap;
@@ -966,7 +964,7 @@ footer a:hover{color:var(--dim);}
   </div>
 </div>
 
-<!-- GMAIL MOCKUP — exact trackmailbox.com source HTML, adapted -->
+<!-- GMAIL MOCKUP -->
 <section class="demo-section reveal" id="demo">
   <div class="eyebrow">Live demo — hover the checkmarks</div>
   <div class="browser-wrap">
@@ -993,7 +991,7 @@ footer a:hover{color:var(--dim);}
       </div>
     </div>
 
-    <!-- Gmail application — exact from trackmailbox source -->
+    <!-- Gmail application -->
     <div class="gmail-wrap">
 
       <!-- Sidebar -->
@@ -1084,7 +1082,7 @@ footer a:hover{color:var(--dim);}
       <!-- Main pane -->
       <div class="gm-main">
 
-        <!-- Top bar — exact match to trackmailbox screenshot -->
+        <!-- Top bar -->
         <div class="gm-topbar">
           <div class="gm-hamburger">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
