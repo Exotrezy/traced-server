@@ -1,0 +1,23 @@
+name = "traced"
+main = "src/worker.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# KV namespace for tracking data
+# After running `wrangler kv:namespace create TRACED_KV`
+# paste the id you get below
+[[kv_namespaces]]
+binding = "TRACED_KV"
+id = "PASTE_YOUR_KV_ID_HERE"
+
+# Serve static files (landing page, dashboard, privacy)
+[assets]
+directory = "./public"
+
+[vars]
+BASE_URL = "https://traced.mikaelsyed.me"
+
+# Custom domain routing
+[[routes]]
+pattern = "traced.mikaelsyed.me/*"
+zone_name = "mikaelsyed.me"

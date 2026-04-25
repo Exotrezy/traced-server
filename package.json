@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "traced-server",
   "version": "1.0.0",
   "description": "Traced email tracking server",
@@ -17,5 +18,17 @@
   },
   "engines": {
     "node": ">=18.0.0"
+=======
+  "name": "traced-worker",
+  "version": "1.0.0",
+  "description": "Traced email tracking — Cloudflare Worker",
+  "main": "src/worker.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+>>>>>>> a7148c8 (cloudflare worker setup)
   }
 }
