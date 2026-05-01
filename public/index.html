@@ -51,11 +51,14 @@ nav{
 }
 .nav-links a:hover{color:var(--text);background:rgba(255,255,255,.04);}
 .nav-dl{
-  font-size:13px;font-weight:700;color:#0b0b09;
+  font-size:13px;font-weight:700;color:#000000 !important;
   background:var(--lime);padding:7px 18px;border-radius:4px;
-  transition:opacity .15s;
+  transition:opacity .15s, text-decoration:none;
 }
-.nav-dl:hover{opacity:.86;}
+.nav-dl:hover{
+  color: var(--text) !important;
+  opacity: 1;
+}
 
 /* hero */
 .hero{
@@ -445,6 +448,19 @@ nav{
   padding:12px 16px;cursor:pointer;
   transition:box-shadow .1s,background .1s;
   border-bottom:1px solid #f1f3f4;
+}
+
+/* Change text to white on hover */
+.gm-row:hover .gm-to,
+.gm-row:hover .gm-subject,
+.gm-row:hover .gm-preview,
+.gm-row:hover .gm-date {
+  color: #ffffff !important;
+}
+
+/* Optional: Make the "Sent" font weight slightly heavier on hover for better readability on the blue background */
+.gm-row:hover .gm-to {
+  font-weight: 600;
 }
 .gm-row:hover{
   box-shadow:0 2px 8px rgba(0,0,0,.1);
@@ -851,6 +867,25 @@ footer a:hover{color:var(--dim);}
   footer{padding:24px 16px;flex-direction:column;align-items:flex-start;gap:12px;}
   .footer-slogan{display:none;}
 }
+
+/* PayPal donate button */
+.pp-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  background: var(--lime);color:#000000 !important;
+  border:none;border-radius:4px;
+  padding:7px 14px;
+  text-decoration:none;flex-shrink:0;
+  transition:opacity .15s;
+  white-space:nowrap;
+  font-family:var(--sans);
+  font-size:13px;
+  font-weight:700;
+  line-height:1;
+}
+.pp-btn:hover{
+  color: var(--text) !important;
+  opacity:1;
+  }
 </style>
 </head>
 <body>
@@ -861,6 +896,10 @@ footer a:hover{color:var(--dim);}
     <span class="nav-wordmark">Traced<span>.</span></span>
   </a>
   <div class="nav-links">
+    <a href="https://www.paypal.com/donate/?hosted_button_id=E6CH5RRTANZMW" target="_blank" class="pp-btn">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/PayPal_Logo_Icon_2014.svg" alt="PayPal" style="height:16px;width:auto;"/>
+      Support Us!
+    </a>
     <a href="#demo">Demo</a>
     <a href="#how">How it works</a>
     <a href="#compare">Compare</a>
