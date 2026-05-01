@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You | Traced</title>
+    <!-- Google Fonts Imports -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #000000;
+            --primary-lime: #c8f04a; /* Your branding hex code */
+            --text-main: #ffffff;
+            --serif: 'Instrument Serif', serif;
+            --mono: 'IBM Plex Mono', monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 800px;
+        }
+
+        h1 {
+            font-family: var(--serif);
+            font-style: italic;
+            font-size: 6rem;
+            font-weight: 400;
+            margin: 0;
+            line-height: 1;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+
+        h1 .highlight {
+            color: var(--primary-lime);
+        }
+
+        p {
+            font-family: var(--mono);
+            color: #666;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            text-transform: uppercase;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 3rem;
+            padding: 12px 24px;
+            border: 1px solid var(--primary-lime);
+            color: var(--primary-lime);
+            text-decoration: none;
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-lime);
+            color: #000;
+        }
+
+        .grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(to right, #0a0a0a 1px, transparent 1px),
+                linear-gradient(to bottom, #0a0a0a 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid"></div>
+    
+    <div class="container">
+        <h1>Thank <span class="highlight">you!</span></h1>
+        <p>> Thank you for helping us keep Traced free forever!</p>
+        <a href="https://traced.mikaelsyed.me" class="btn">[ Back to Home ]</a>
+    </div>
+</body>
+</html>
