@@ -18,6 +18,31 @@ const PIXEL_HEADERS = {
   'Access-Control-Allow-Origin': '*',
 };
 
+// ── Bot / Google Image Proxy detection ──
+function isBotOrProxy(ua = '') {
+  const u = ua.toLowerCase();
+  return (
+    u.includes('googleimageproxy') ||
+    u.includes('googlebot') ||
+    u.includes('mediapartners-google') ||
+    u.includes('adsbot-google') ||
+    u.includes('feedfetcher') ||
+    u.includes('yahoo! slurp') ||
+    u.includes('bingbot') ||
+    u.includes('applebot') ||
+    u.includes('facebookexternalhit') ||
+    u.includes('twitterbot') ||
+    u.includes('linkedinbot') ||
+    u === '' // empty UA = likely a proxy/scanner
+  );
+}
+
+// ── Check if the request IP matches the sender's registered IP ──
+function isSenderIP(email, ip) {
+  if (!email || !ip) return false;
+  return email.senderIp === ip;
+}
+
 const JSON_HEADERS = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
@@ -149,18 +174,23 @@ export default {
     // ── GET /pixel/:id  (top pixel — email opened) ──
     if (method === 'GET' && path.match(/^\/pixel\/(.+)/)) {
       const id = path.replace('/pixel/', '').replace(/\.(gif|png|jpg)$/i, '');
-      const email = await getEmail(kv, id);
-      if (email) {
-        const ua = request.headers.get('user-agent') || '';
-        email.opens.push({
-          time: new Date().toISOString(),
-          ip: request.headers.get('cf-connecting-ip') || '',
-          ua,
-          device: detectDevice(ua),
-          client: detectClient(ua),
-          pixelType: 'top',
-        });
-        await saveEmail(kv, id, email);
+      const ua = request.headers.get('user-agent') || '';
+      const ip = request.headers.get('cf-connecting-ip') || '';
+
+      // Ignore Google Image Proxy, bots, and the sender's own IP
+      if (!isBotOrProxy(ua) && !isSenderIP(await getEmail(kv, id), ip)) {
+        const email = await getEmail(kv, id);
+        if (email) {
+          email.opens.push({
+            time: new Date().toISOString(),
+            ip,
+            ua,
+            device: detectDevice(ua),
+            client: detectClient(ua),
+            pixelType: 'top',
+          });
+          await saveEmail(kv, id, email);
+        }
       }
       return pixelResponse();
     }
@@ -168,18 +198,23 @@ export default {
     // ── GET /read/:id  (bottom pixel — fully read) ──
     if (method === 'GET' && path.match(/^\/read\/(.+)/)) {
       const id = path.replace('/read/', '').replace(/\.(gif|png|jpg)$/i, '');
-      const email = await getEmail(kv, id);
-      if (email) {
-        const ua = request.headers.get('user-agent') || '';
-        email.opens.push({
-          time: new Date().toISOString(),
-          ip: request.headers.get('cf-connecting-ip') || '',
-          ua,
-          device: detectDevice(ua),
-          client: detectClient(ua),
-          pixelType: 'bottom',
-        });
-        await saveEmail(kv, id, email);
+      const ua = request.headers.get('user-agent') || '';
+      const ip = request.headers.get('cf-connecting-ip') || '';
+
+      // Ignore Google Image Proxy, bots, and the sender's own IP
+      if (!isBotOrProxy(ua) && !isSenderIP(await getEmail(kv, id), ip)) {
+        const email = await getEmail(kv, id);
+        if (email) {
+          email.opens.push({
+            time: new Date().toISOString(),
+            ip,
+            ua,
+            device: detectDevice(ua),
+            client: detectClient(ua),
+            pixelType: 'bottom',
+          });
+          await saveEmail(kv, id, email);
+        }
       }
       return pixelResponse();
     }
@@ -225,6 +260,7 @@ export default {
         opens: [],
         links: linkMap,
         options,
+        senderIp: request.headers.get('cf-connecting-ip') || '',
       };
 
       await saveEmail(kv, trackingId, emailData);
@@ -281,6 +317,19 @@ export default {
         if (raw) index = JSON.parse(raw);
       } catch {}
       return jsonResponse(index);
+    }
+
+    // ── DELETE /api/emails ── clears all tracked emails from KV
+    if (method === 'DELETE' && path === '/api/emails') {
+      let index = [];
+      try {
+        const raw = await kv.get('__index__');
+        if (raw) index = JSON.parse(raw);
+      } catch {}
+      // Delete each email record and the index
+      await Promise.all(index.map(id => kv.delete(id)));
+      await kv.delete('__index__');
+      return jsonResponse({ cleared: index.length });
     }
 
     // ── GET /api/activity ──
