@@ -43,6 +43,12 @@ function isSenderIP(email, ip) {
   return email.senderIp === ip;
 }
 
+// ── Ignore opens within 45s of registration (catches Gmail Image Proxy pre-fetch) ──
+function isTooSoon(email) {
+  if (!email || !email.registeredAt) return false;
+  return (Date.now() - email.registeredAt) < 45000;
+}
+
 const JSON_HEADERS = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
@@ -177,11 +183,11 @@ export default {
       const ua = request.headers.get('user-agent') || '';
       const ip = request.headers.get('cf-connecting-ip') || '';
 
-      // Ignore Google Image Proxy, bots, and the sender's own IP
-      if (!isBotOrProxy(ua) && !isSenderIP(await getEmail(kv, id), ip)) {
-        const email = await getEmail(kv, id);
-        if (email) {
-          email.opens.push({
+      // Ignore bots, Google Image Proxy, sender IP, and opens within 45s of send
+      const email1 = await getEmail(kv, id);
+      if (!isBotOrProxy(ua) && !isSenderIP(email1, ip) && !isTooSoon(email1)) {
+        if (email1) {
+          email1.opens.push({
             time: new Date().toISOString(),
             ip,
             ua,
@@ -189,7 +195,7 @@ export default {
             client: detectClient(ua),
             pixelType: 'top',
           });
-          await saveEmail(kv, id, email);
+          await saveEmail(kv, id, email1);
         }
       }
       return pixelResponse();
@@ -201,11 +207,10 @@ export default {
       const ua = request.headers.get('user-agent') || '';
       const ip = request.headers.get('cf-connecting-ip') || '';
 
-      // Ignore Google Image Proxy, bots, and the sender's own IP
-      if (!isBotOrProxy(ua) && !isSenderIP(await getEmail(kv, id), ip)) {
-        const email = await getEmail(kv, id);
-        if (email) {
-          email.opens.push({
+      const email2 = await getEmail(kv, id);
+      if (!isBotOrProxy(ua) && !isSenderIP(email2, ip) && !isTooSoon(email2)) {
+        if (email2) {
+          email2.opens.push({
             time: new Date().toISOString(),
             ip,
             ua,
@@ -213,7 +218,7 @@ export default {
             client: detectClient(ua),
             pixelType: 'bottom',
           });
-          await saveEmail(kv, id, email);
+          await saveEmail(kv, id, email2);
         }
       }
       return pixelResponse();
@@ -257,6 +262,7 @@ export default {
         subject,
         recipient,
         createdAt: new Date().toISOString(),
+        registeredAt: Date.now(), // used to ignore immediate proxy hits
         opens: [],
         links: linkMap,
         options,
