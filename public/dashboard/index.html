@@ -487,34 +487,35 @@ let currentView = 'all';
 
 async function loadAll() {
   try {
-    const extData = await getExtData();
-    if (extData && Object.keys(extData).length) {
-      const ids = Object.keys(extData);
-      const res = await fetch(`${API}/api/status/bulk`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids})});
-      const statuses = await res.json();
-      emails = ids.map(id => ({...extData[id],...statuses[id]})).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
-      const actRes = await fetch(`${API}/api/activity?limit=30`);
-      activity = await actRes.json();
-    } else {
-      emails = [];
-      activity = [];
+    // Dashboard is a webpage — fetch directly from the Traced server API
+    // /api/emails returns all tracked email IDs from KV storage
+    const [emailsRes, actRes] = await Promise.all([
+      fetch(`${API}/api/emails`),
+      fetch(`${API}/api/activity?limit=100`)
+    ]);
+
+    if (emailsRes.ok) {
+      const emailIds = await emailsRes.json(); // array of trackingIds
+      if (emailIds.length) {
+        const bulkRes = await fetch(`${API}/api/status/bulk`, {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ids: emailIds})
+        });
+        const statuses = await bulkRes.json();
+        emails = Object.values(statuses).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+      }
     }
-  } catch {
+
+    if (actRes.ok) {
+      activity = await actRes.json();
+    }
+  } catch(e) {
+    console.error('[Traced dashboard] Load error:', e);
     emails = [];
     activity = [];
   }
   renderAll();
-}
-
-async function getExtData() {
-  if (!window.chrome?.runtime?.sendMessage) return null;
-  try {
-    return await new Promise((res,rej)=>{
-      chrome.runtime.sendMessage({type:'GET_ALL'},d=>{
-        if(chrome.runtime.lastError)rej();else res(d);
-      });
-    });
-  } catch { return null; }
 }
 
 function renderAll() {

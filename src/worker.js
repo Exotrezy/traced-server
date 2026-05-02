@@ -273,6 +273,16 @@ export default {
       return jsonResponse(result);
     }
 
+    // ── GET /api/emails ── returns all tracking IDs (for dashboard)
+    if (method === 'GET' && path === '/api/emails') {
+      let index = [];
+      try {
+        const raw = await kv.get('__index__');
+        if (raw) index = JSON.parse(raw);
+      } catch {}
+      return jsonResponse(index);
+    }
+
     // ── GET /api/activity ──
     if (method === 'GET' && path === '/api/activity') {
       const limit = Math.min(parseInt(url.searchParams.get('limit') || '30'), 100);
