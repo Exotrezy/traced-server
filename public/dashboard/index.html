@@ -479,23 +479,7 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);font-size:1
 <script>
 const API = 'https://traced.mikaelsyed.me';
 
-// ── mock data (shown when no live connection) ──
-const MOCK = [
-  {trackingId:'t1',subject:'Q4 Proposal — let me know your thoughts',recipient:'sarah.m@acme.com',state:'fully_read',openCount:3,fullyReadCount:3,createdAt:'2025-04-14T09:00:00Z',lastOpened:'2025-04-14T15:14:00Z',opens:[{time:'2025-04-14T09:42:00Z',device:'mobile',client:'Gmail App'},{time:'2025-04-14T15:14:00Z',device:'mobile',client:'Gmail App'}],timeline:[{type:'opened',time:'2025-04-14T09:42:00Z',device:'mobile',client:'Gmail App'},{type:'fully_read',time:'2025-04-14T15:14:00Z',device:'mobile',client:'Gmail App'}]},
-  {trackingId:'t2',subject:'Following up on the design review',recipient:'james.k@design.co',state:'opened',openCount:1,fullyReadCount:0,createdAt:'2025-04-13T11:00:00Z',lastOpened:'2025-04-13T13:22:00Z',opens:[{time:'2025-04-13T13:22:00Z',device:'desktop',client:'Outlook'}],timeline:[{type:'opened',time:'2025-04-13T13:22:00Z',device:'desktop',client:'Outlook'}]},
-  {trackingId:'t3',subject:'Invoice #2024-089 — please review',recipient:'alex.t@company.io',state:'sent',openCount:0,fullyReadCount:0,createdAt:'2025-04-12T08:30:00Z',lastOpened:null,opens:[],timeline:[]},
-  {trackingId:'t4',subject:'Partnership opportunity — are you interested?',recipient:'nina.p@ventures.com',state:'fully_read',openCount:7,fullyReadCount:4,createdAt:'2025-04-10T10:00:00Z',lastOpened:'2025-04-12T16:30:00Z',opens:[{time:'2025-04-10T11:00:00Z',device:'mobile',client:'Apple Mail'},{time:'2025-04-11T09:00:00Z',device:'desktop',client:'Gmail (Web)'}],timeline:[{type:'opened',time:'2025-04-10T11:00:00Z',device:'mobile',client:'Apple Mail'},{type:'fully_read',time:'2025-04-11T09:00:00Z',device:'desktop',client:'Gmail (Web)'}]},
-  {trackingId:'t5',subject:'Hey! Quick check-in 👋',recipient:'neha@startup.ai',state:'fully_read',openCount:2,fullyReadCount:2,createdAt:'2025-04-09T14:00:00Z',lastOpened:'2025-04-09T18:45:00Z',opens:[{time:'2025-04-09T18:00:00Z',device:'mobile',client:'Gmail App'}],timeline:[{type:'opened',time:'2025-04-09T18:00:00Z',device:'mobile',client:'Gmail App'},{type:'fully_read',time:'2025-04-09T18:45:00Z',device:'mobile',client:'Gmail App'}]},
-  {trackingId:'t6',subject:'Onboarding docs — please read before Monday',recipient:'priya@team.co',state:'opened',openCount:2,fullyReadCount:0,createdAt:'2025-04-08T09:00:00Z',lastOpened:'2025-04-08T11:30:00Z',opens:[{time:'2025-04-08T10:00:00Z',device:'tablet',client:'Safari Mail'},{time:'2025-04-08T11:30:00Z',device:'desktop',client:'Outlook'}],timeline:[{type:'opened',time:'2025-04-08T10:00:00Z',device:'tablet',client:'Safari Mail'},{type:'link_clicked',url:'https://notion.so/onboarding',time:'2025-04-08T11:32:00Z',device:'desktop',client:'Outlook'}]},
-];
-
-const MOCK_ACT = [
-  {type:'fully_read',subject:'Q4 Proposal',recipient:'sarah.m@acme.com',time:'2025-04-14T15:14:00Z',device:'mobile',client:'Gmail App'},
-  {type:'opened',subject:'Design review',recipient:'james.k@design.co',time:'2025-04-13T13:22:00Z',device:'desktop',client:'Outlook'},
-  {type:'fully_read',subject:'Quick check-in',recipient:'neha@startup.ai',time:'2025-04-09T18:45:00Z',device:'mobile',client:'Gmail App'},
-  {type:'link_clicked',subject:'Onboarding docs',recipient:'priya@team.co',time:'2025-04-08T11:32:00Z',device:'desktop',client:'Outlook'},
-  {type:'fully_read',subject:'Partnership opp.',recipient:'nina.p@ventures.com',time:'2025-04-11T09:00:00Z',device:'desktop',client:'Gmail (Web)'},
-];
+// No mock data — dashboard shows only real tracked emails
 
 let emails = [];
 let activity = [];
@@ -512,12 +496,12 @@ async function loadAll() {
       const actRes = await fetch(`${API}/api/activity?limit=30`);
       activity = await actRes.json();
     } else {
-      emails = MOCK;
-      activity = MOCK_ACT;
+      emails = [];
+      activity = [];
     }
   } catch {
-    emails = MOCK;
-    activity = MOCK_ACT;
+    emails = [];
+    activity = [];
   }
   renderAll();
 }
