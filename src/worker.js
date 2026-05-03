@@ -22,8 +22,9 @@ const PIXEL_HEADERS = {
 function isBotOrProxy(ua = '') {
   const u = ua.toLowerCase();
   return (
-    u.includes('googleimageproxy') ||
+    u.includes('googleimageproxy') ||  // Gmail image proxy — most common false positive
     u.includes('googlebot') ||
+    u.includes('googlebot-image') ||
     u.includes('mediapartners-google') ||
     u.includes('adsbot-google') ||
     u.includes('feedfetcher') ||
@@ -33,7 +34,9 @@ function isBotOrProxy(ua = '') {
     u.includes('facebookexternalhit') ||
     u.includes('twitterbot') ||
     u.includes('linkedinbot') ||
-    u === '' // empty UA = likely a proxy/scanner
+    u.includes('yahoo pipes') ||
+    u.includes('mail.ru') ||
+    u === ''
   );
 }
 
@@ -41,12 +44,6 @@ function isBotOrProxy(ua = '') {
 function isSenderIP(email, ip) {
   if (!email || !ip) return false;
   return email.senderIp === ip;
-}
-
-// ── Ignore opens within 45s of registration (catches Gmail Image Proxy pre-fetch) ──
-function isTooSoon(email) {
-  if (!email || !email.registeredAt) return false;
-  return (Date.now() - email.registeredAt) < 45000;
 }
 
 const JSON_HEADERS = {
@@ -182,10 +179,21 @@ export default {
       const id = path.replace('/pixel/', '').replace(/\.(gif|png|jpg)$/i, '');
       const ua = request.headers.get('user-agent') || '';
       const ip = request.headers.get('cf-connecting-ip') || '';
+      const isBot = isBotOrProxy(ua);
 
-      // Ignore bots, Google Image Proxy, sender IP, and opens within 45s of send
       const email1 = await getEmail(kv, id);
-      if (!isBotOrProxy(ua) && !isSenderIP(email1, ip) && !isTooSoon(email1)) {
+      const isSender = isSenderIP(email1, ip);
+
+      // Log every pixel hit to KV for debugging — stored separately
+      await kv.put('debug:last_pixel', JSON.stringify({
+        time: new Date().toISOString(),
+        id, ua, ip,
+        isBot, isSender,
+        senderIpStored: email1?.senderIp || 'none',
+        willRecord: !isBot && !isSender,
+      }), { expirationTtl: 3600 });
+
+      if (!isBot && !isSender) {
         if (email1) {
           email1.opens.push({
             time: new Date().toISOString(),
@@ -201,14 +209,23 @@ export default {
       return pixelResponse();
     }
 
+    // ── GET /api/debug/last-pixel ── see what the last pixel hit looked like
+    if (method === 'GET' && path === '/api/debug/last-pixel') {
+      const raw = await kv.get('debug:last_pixel');
+      return jsonResponse(raw ? JSON.parse(raw) : { message: 'No pixel hits recorded yet' });
+    }
+
     // ── GET /read/:id  (bottom pixel — fully read) ──
     if (method === 'GET' && path.match(/^\/read\/(.+)/)) {
       const id = path.replace('/read/', '').replace(/\.(gif|png|jpg)$/i, '');
       const ua = request.headers.get('user-agent') || '';
       const ip = request.headers.get('cf-connecting-ip') || '';
+      const isBot2 = isBotOrProxy(ua);
 
       const email2 = await getEmail(kv, id);
-      if (!isBotOrProxy(ua) && !isSenderIP(email2, ip) && !isTooSoon(email2)) {
+      const isSender2 = isSenderIP(email2, ip);
+
+      if (!isBot2 && !isSender2) {
         if (email2) {
           email2.opens.push({
             time: new Date().toISOString(),
