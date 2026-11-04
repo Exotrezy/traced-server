@@ -8,7 +8,7 @@ Read receipts and tracked-link activity for Gmail, with an extension popup and a
 
 ## Source availability and reuse
 
-This repository makes Traced's implementation available for inspection. The original project code remains copyright Mikael Syed; it is not released under an open-source license. See LICENSE. Contact hello@mikaelsyed.me to request reuse or redistribution permission. Included third-party fonts retain their own licenses; see THIRD_PARTY_NOTICES.md.
+This repository makes Traced's implementation available for inspection. The original project code remains copyright Mikael Syed; it is not released under an open-source license. See LICENSE. Contact mikael@mikaelsyed.me to request reuse or redistribution permission. Included third-party fonts retain their own licenses; see THIRD_PARTY_NOTICES.md.
 
 The extension source snapshot is version 1.3.4. The store can temporarily serve an earlier approved version while an update is under review.
 
