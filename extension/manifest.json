@@ -1,0 +1,58 @@
+{
+  "manifest_version": 3,
+  "name": "Traced - Email Read Receipts for Gmail",
+  "short_name": "Traced",
+  "version": "1.3.4",
+  "description": "Free read receipts for Gmail. See when emails are opened and links are clicked, by session. No watermark, no limits.",
+  "homepage_url": "https://traced.mikaelsyed.me",
+  "minimum_chrome_version": "116",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications"
+  ],
+  "host_permissions": [
+    "https://mail.google.com/*",
+    "https://traced.mikaelsyed.me/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://mail.google.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "traced.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Traced",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "fonts/GoogleSans-latin.woff2"
+      ],
+      "matches": [
+        "https://mail.google.com/*"
+      ]
+    }
+  ]
+}

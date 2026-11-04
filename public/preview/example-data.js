@@ -1,0 +1,10 @@
+const exampleTime=m=>new Date(Date.now()-m*60000).toISOString();
+const exampleEmails={
+ a:{trackingId:'example-a',subject:'Partnership proposal',recipient:'john@example.com',state:'fully_read',createdAt:exampleTime(50),lastOpened:exampleTime(12),lastFullyRead:exampleTime(12),openCount:1,openHits:4,fullyReadCount:1,clickCount:4,clickSessions:1,sessionGapMinutes:15,opens:[{client:'Gmail'}],sessions:[{hits:4}],timeline:[{type:'fully_read',session:1,hits:4,time:exampleTime(12),device:'desktop',client:'Gmail',location:null,locationUnavailable:'mail_proxy'},{type:'link_clicked',url:'https://example.com/proposal',hits:4,time:exampleTime(10),device:'desktop',client:'Edge',location:{city:'Paris',country:'FR',approximate:true}}]},
+ b:{trackingId:'example-b',subject:'Summer research program',recipient:'sarah@example.com',state:'opened',createdAt:exampleTime(70),lastOpened:exampleTime(40),openCount:1,openHits:2,fullyReadCount:0,clickCount:0,clickSessions:0,sessions:[{hits:2}],opens:[{client:'Gmail'}],timeline:[{type:'opened',session:1,hits:2,time:exampleTime(40),device:'desktop',client:'Gmail',location:null,locationUnavailable:'mail_proxy'}]},
+ c:{trackingId:'example-c',subject:'Internship opportunity',recipient:'marcus@example.com',state:'sent',createdAt:exampleTime(120),openCount:0,openHits:0,clickCount:0,timeline:[]}
+};
+const exampleSettings={tracedEnabled:true,settings:{}};
+window.chrome={storage:{onChanged:{addListener(){}},sync:{get:async()=>exampleSettings,set:async value=>Object.assign(exampleSettings,value)},local:{get:async()=>({pollMeta:{ok:true}})}},runtime:{getManifest:()=>({version:'1.3.2'}),sendMessage:(message,reply)=>{let result=message.type==='GET_ALL'?exampleEmails:message.type==='GET_STATUS'?Object.values(exampleEmails).find(e=>e.trackingId===message.trackingId):message.type==='DASHBOARD_URL'?{url:'/dashboard/'}:{ok:true};if(message.type==='DELETE_ALL')Object.keys(exampleEmails).forEach(k=>delete exampleEmails[k]);reply(result);}}};
+
+new ResizeObserver(()=>parent.postMessage({type:'traced-preview-height',height:document.body.scrollHeight},location.origin)).observe(document.body);

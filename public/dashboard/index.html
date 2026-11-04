@@ -1,772 +1,291 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
 <title>Dashboard — Traced</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2028%2024%22%20fill%3D%22none%22%20stroke%3D%22%23c8f04a%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m2%2012%205%205L18%205%22%2F%3E%3Cpath%20d%3D%22m12%2016%202%202L26%205%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #0b0b09;
-  --ink: #0b0b09;
-  --surface: #111110;
-  --s2: #181816;
-  --rule: #232321;
-  --rule2: #363632;
-  --text: #f0efe8;
-  --dim: #72726a;
-  --faint: #3a3a36;
-  --lime: #c8f04a;
-  --serif: 'Instrument Serif', Georgia, serif;
-  --sans: 'Bricolage Grotesque', sans-serif;
-  --mono: 'IBM Plex Mono', monospace;
-}
-
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;overflow:hidden;}
-body{background:var(--ink);color:var(--text);font-family:var(--sans);font-size:13px;display:flex;flex-direction:column;}
-
-/* top bar */
-.topbar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 28px;height:52px;
-  background:var(--surface);
-  border-bottom:1px solid var(--rule);
-  flex-shrink:0;
-}
-
-.tl{display:flex;align-items:baseline;gap:8px;}
-.wordmark{font-family:var(--serif);font-size:18px;font-style:italic;color:var(--text);}
-.slash{font-family:var(--mono);font-size:10px;color:var(--faint);margin:0 2px;}
-.page{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:0.5px;}
-
-.status-pill{
-  display:flex;align-items:center;gap:6px;
-  border:1px solid rgba(255,255,255,0.1);
-  border-radius:2px;padding:4px 10px;
-  font-family:var(--mono);font-size:9px;
-  color:var(--dim);letter-spacing:1px;text-transform:uppercase;
-}
-
-.status-dot{width:5px;height:5px;background:var(--lime);border-radius:50%;animation:blink 2s ease-in-out infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}
-
-.tr2{display:flex;align-items:center;gap:10px;}
-
-.tbtn{
-  background:none;border:1px solid var(--rule2);
-  border-radius:2px;padding:5px 12px;
-  font-size:11px;font-family:var(--mono);
-  color:var(--dim);cursor:pointer;
-  letter-spacing:0.5px;text-transform:uppercase;
-  transition:border-color .15s,color .15s;
-}
-.tbtn:hover{border-color:rgba(255,255,255,0.3);color:var(--text);}
-
-/* layout */
-.layout{display:flex;flex:1;overflow:hidden;}
-
-/* sidebar */
-.sb{
-  width:200px;background:var(--surface);
-  border-right:1px solid var(--rule);
-  padding:20px 0;flex-shrink:0;
-}
-
-.sb-lbl{
-  font-family:var(--mono);font-size:9px;
-  color:var(--faint);letter-spacing:1.5px;text-transform:uppercase;
-  padding:0 20px;margin-bottom:8px;
-}
-
-.sb-item{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:8px 20px;font-size:12px;
-  color:var(--dim);cursor:pointer;
-  transition:background .1s,color .1s;
-  font-weight:500;
-}
-.sb-item:hover{background:rgba(255,255,255,0.03);color:var(--text);}
-.sb-item.act{color:var(--lime);}
-
-.sb-item-l{display:flex;align-items:center;gap:8px;}
-.sb-ic{font-size:12px;width:14px;text-align:center;opacity:0.5;}
-
-.sb-n{
-  font-family:var(--mono);font-size:9px;
-  color:var(--faint);
-  background:rgba(255,255,255,0.04);
-  border:1px solid var(--rule);
-  border-radius:2px;padding:1px 5px;
-  transition:color .15s;
-}
-.sb-item.act .sb-n{color:var(--dim);}
-
-.sb-divider{height:1px;background:var(--rule);margin:14px 0;}
-
-/* main */
-.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
-.main::-webkit-scrollbar{width:4px;}
-.main::-webkit-scrollbar-thumb{background:#222;border-radius:2px;}
-
-/* stat strip */
-.stat-strip{
-  display:grid;grid-template-columns:repeat(4,1fr);
-  border-bottom:1px solid var(--rule);
-  flex-shrink:0;
-}
-
-.stat-cell{
-  padding:20px 24px;
-  border-right:1px solid var(--rule);
-}
-.stat-cell:last-child{border-right:none;}
-
-.stat-pre{
-  font-family:var(--mono);font-size:9px;color:var(--faint);
-  letter-spacing:1px;text-transform:uppercase;
-  margin-bottom:10px;
-}
-
-.stat-num{
-  font-family:var(--serif);font-size:38px;
-  font-weight:400;line-height:1;color:var(--text);
-}
-
-.stat-post{
-  font-family:var(--mono);font-size:9px;color:var(--faint);
-  margin-top:6px;letter-spacing:0.5px;
-}
-
-/* content */
-.content{
-  flex:1;display:grid;
-  grid-template-columns:1fr 280px;
-  overflow:hidden;
-}
-
-/* email table panel */
-.table-panel{
-  border-right:1px solid var(--rule);
-  overflow:hidden;display:flex;flex-direction:column;
-}
-
-.panel-head{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 24px;border-bottom:1px solid var(--rule);
-  flex-shrink:0;
-}
-
-.panel-title{
-  font-family:var(--mono);font-size:10px;
-  color:var(--dim);letter-spacing:1px;text-transform:uppercase;
-}
-
-.panel-action{
-  font-family:var(--mono);font-size:9px;
-  color:var(--faint);cursor:pointer;
-  letter-spacing:0.5px;text-transform:uppercase;
-  transition:color .15s;
-}
-.panel-action:hover{color:var(--dim);}
-
-/* table header */
-.eth{
-  display:grid;
-  grid-template-columns:32px 1fr 100px 90px 48px 80px;
-  gap:0;padding:8px 24px;
-  border-bottom:1px solid var(--rule);
-  font-family:var(--mono);font-size:8px;
-  color:var(--faint);letter-spacing:1px;text-transform:uppercase;
-  flex-shrink:0;
-}
-
-.email-rows{flex:1;overflow-y:auto;}
-.email-rows::-webkit-scrollbar{width:3px;}
-.email-rows::-webkit-scrollbar-thumb{background:#1c1c1a;border-radius:2px;}
-
-/* email row */
-.etr{
-  display:grid;
-  grid-template-columns:32px 1fr 100px 90px 48px 80px;
-  gap:0;padding:10px 24px;
-  border-bottom:1px solid var(--rule);
-  align-items:center;cursor:pointer;
-  transition:background .1s;
-}
-.etr:hover{background:rgba(255,255,255,0.02);}
-.etr:last-child{border-bottom:none;}
-
-/* state indicator — just a dot and text */
-.state-dot{
-  width:6px;height:6px;border-radius:50%;flex-shrink:0;
-}
-.dot-sent{background:rgba(255,255,255,0.15);}
-.dot-opened{background:rgba(255,255,255,0.45);}
-.dot-read{background:rgba(255,255,255,0.8);}
-
-.e-subject{
-  font-size:12px;color:var(--text);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  font-weight:500;padding-right:12px;
-}
-.e-recip{
-  font-size:11px;color:var(--dim);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  font-family:var(--mono);font-size:10px;
-}
-.e-state{
-  font-family:var(--mono);font-size:9px;
-  letter-spacing:0.5px;text-transform:uppercase;
-}
-.s-sent{color:var(--faint);}
-.s-opened{color:rgba(255,255,255,0.5);}
-.s-read{color:var(--text);}
-
-.e-count{
-  font-family:var(--mono);font-size:11px;color:var(--dim);
-  text-align:center;
-}
-.e-time{
-  font-family:var(--mono);font-size:10px;color:var(--faint);
-}
-
-/* right panel */
-.right-panel{
-  display:flex;flex-direction:column;
-  overflow:hidden;
-}
-
-/* hourly chart */
-.chart-section{
-  padding:20px 20px 16px;
-  border-bottom:1px solid var(--rule);
-  flex-shrink:0;
-}
-
-.chart-title{
-  font-family:var(--mono);font-size:9px;
-  color:var(--faint);letter-spacing:1px;
-  text-transform:uppercase;margin-bottom:14px;
-}
-
-.hour-chart{
-  display:flex;align-items:flex-end;gap:2px;height:56px;
-}
-
-.hcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;height:100%;}
-.hbar{width:100%;background:rgba(255,255,255,0.18);border-radius:1px 1px 0 0;min-height:2px;transition:background .15s;}
-.hbar.peak{background:rgba(255,255,255,0.5);}
-.hcol:hover .hbar{background:var(--dim);}
-.hlb{font-family:var(--mono);font-size:6px;color:var(--faint);}
-
-/* device breakdown */
-.device-section{
-  padding:16px 20px;
-  border-bottom:1px solid var(--rule);
-  flex-shrink:0;
-}
-
-.device-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-.device-row:last-child{margin-bottom:0;}
-.device-name{font-family:var(--mono);font-size:10px;color:var(--dim);width:56px;flex-shrink:0;}
-.device-bar-bg{flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}
-.device-bar-fill{height:100%;background:rgba(255,255,255,0.3);border-radius:2px;}
-.device-pct{font-family:var(--mono);font-size:9px;color:var(--faint);width:28px;text-align:right;}
-
-/* activity feed */
-.activity-section{flex:1;overflow:hidden;display:flex;flex-direction:column;}
-
-.act-feed{flex:1;overflow-y:auto;}
-.act-feed::-webkit-scrollbar{width:3px;}
-.act-feed::-webkit-scrollbar-thumb{background:#1c1c1a;border-radius:2px;}
-
-.act-item{
-  display:flex;align-items:flex-start;gap:10px;
-  padding:10px 20px;border-bottom:1px solid var(--rule);
-}
-.act-item:hover{background:rgba(255,255,255,0.02);}
-.act-item:last-child{border-bottom:none;}
-
-.act-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:5px;}
-.ad-read{background:rgba(255,255,255,0.7);}
-.ad-open{background:var(--dim);}
-.ad-link{background:rgba(255,255,255,0.2);}
-
-.act-body{flex:1;min-width:0;}
-.act-main{font-size:11px;color:rgba(255,255,255,0.55);line-height:1.4;}
-.act-main strong{color:var(--text);}
-.act-chips{display:flex;gap:4px;margin-top:3px;}
-.act-chip{
-  font-family:var(--mono);font-size:8px;color:var(--faint);
-  border:1px solid var(--rule);border-radius:2px;padding:1px 5px;
-  letter-spacing:0.5px;
-}
-.act-time{font-family:var(--mono);font-size:9px;color:var(--faint);flex-shrink:0;}
-
-/* detail drawer*/
-.drawer{
-  position:fixed;top:52px;right:-360px;width:340px;
-  height:calc(100vh - 52px);
-  background:var(--surface);
-  border-left:1px solid var(--rule2);
-  box-shadow:-20px 0 60px rgba(0,0,0,0.6);
-  z-index:500;
-  transition:right .3s cubic-bezier(.16,1,.3,1);
-  overflow-y:auto;display:flex;flex-direction:column;
-}
-.drawer.open{right:0;}
-.drawer::-webkit-scrollbar{width:3px;}
-.drawer::-webkit-scrollbar-thumb{background:#222;border-radius:2px;}
-
-.dh{
-  padding:18px 20px 14px;
-  border-bottom:1px solid var(--rule);
-  display:flex;align-items:flex-start;justify-content:space-between;
-  position:sticky;top:0;background:var(--surface);z-index:2;
-}
-
-.dt{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--text);margin-bottom:3px;line-height:1.2;}
-.ds{font-family:var(--mono);font-size:9px;color:var(--faint);letter-spacing:0.5px;}
-
-.dclose{
-  background:none;border:1px solid var(--rule);
-  color:var(--faint);cursor:pointer;border-radius:2px;
-  width:22px;height:22px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:11px;flex-shrink:0;font-family:var(--mono);
-  transition:border-color .15s,color .15s;
-}
-.dclose:hover{border-color:var(--rule2);color:var(--dim);}
-
-.dbody{flex:1;padding:16px 20px;display:flex;flex-direction:column;gap:20px;}
-
-.d-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-.d-stat{
-  background:var(--s2);border:1px solid var(--rule);
-  border-radius:2px;padding:12px;text-align:center;
-}
-.d-stat-n{font-family:var(--serif);font-size:28px;font-weight:400;color:var(--text);line-height:1;}
-.d-stat-l{font-family:var(--mono);font-size:8px;color:var(--faint);margin-top:3px;letter-spacing:0.5px;text-transform:uppercase;}
-
-.d-sec-lbl{font-family:var(--mono);font-size:9px;color:var(--faint);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
-
-.d-hour-chart{display:flex;align-items:flex-end;gap:2px;height:48px;}
-.dhcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;}
-.dhbar{width:100%;background:rgba(255,255,255,0.2);border-radius:1px 1px 0 0;min-height:2px;}
-.dhlb{font-family:var(--mono);font-size:5px;color:var(--faint);}
-
-.d-tl{display:flex;flex-direction:column;}
-.d-tl-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--rule);}
-.d-tl-item:last-child{border-bottom:none;}
-.d-tl-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:4px;}
-.d-tl-b{flex:1;}
-.d-tl-e{font-size:11px;color:rgba(255,255,255,0.6);}
-.d-tl-m{font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:1px;}
-.d-tl-t{font-family:var(--mono);font-size:9px;color:var(--faint);flex-shrink:0;}
+:root{--ink:#0b0c08;--ink2:#11130c;--ink3:#181a11;--fg:#eef0e4;--muted:#8d9182;--line:rgba(255,255,255,.09);--lime:#c8f04a;--sent:#9aa0a6;--open:#4f9fc0;--read:#34a853;--danger:#ff8a7a;
+  --sans:'Google Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;--mono:'Geist Mono',ui-monospace,Menlo,Consolas,monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--fg);font:14px/1.5 var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:6px}
+[hidden]{display:none!important}
+.bar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 24px;background:rgba(11,12,8,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:650;font-size:16px;text-decoration:none}
+.brand svg{width:24px;height:24px}
+.brand small{font-weight:400;color:var(--muted);font-size:13px;margin-left:2px}
+.actions{display:flex;gap:8px;align-items:center}
+.btn{padding:7px 13px;border-radius:9px;border:1px solid var(--line);font-size:13px;color:var(--fg);background:rgba(255,255,255,.03)}
+.btn:hover{background:rgba(255,255,255,.08)}
+.btn.danger{color:var(--danger)}
+.btn.lime{background:var(--lime);border-color:var(--lime);color:var(--ink);font-weight:600;text-decoration:none;display:inline-block}
+main{max-width:1200px;margin:0 auto;padding:24px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);border-radius:14px;background:var(--ink2);margin-bottom:20px}
+.stats div{padding:16px 18px}.stats div+div{border-left:1px solid var(--line)}
+.stats b{display:block;font-size:26px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.stats span{font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+.card{border:1px solid var(--line);border-radius:14px;background:var(--ink2);overflow:hidden}
+.card+.card{margin-top:20px}
+.ch{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.ch b{font-weight:600;font-size:14px}.ch small{color:var(--muted);font-size:12px}
+.tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--line)}
+.tab{padding:5px 11px;border-radius:8px;font-size:13px;color:var(--muted)}
+.tab:hover{color:var(--fg);background:rgba(255,255,255,.05)}.tab.on{color:var(--fg);background:rgba(255,255,255,.08);font-weight:550}
+.search{margin-left:auto;background:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;color:var(--fg);font:inherit;font-size:13px;width:190px;outline:none}
+.search:focus{border-color:var(--lime)}
+.row{display:grid;grid-template-columns:24px 1fr 92px 84px 84px 64px;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);cursor:pointer;width:100%;text-align:left}
+.row:hover{background:rgba(255,255,255,.03)}.row:last-child{border:0}
+.row.head{cursor:default;font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:9px 16px}
+.row.head:hover{background:none}
+.subj{font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rcpt{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tick{width:18px;height:14px}.s-sent{color:var(--sent)}.s-opened{color:var(--open)}.s-fully_read{color:var(--read)}
+.chip{font-size:12px;padding:2px 9px;border-radius:999px;justify-self:start;font-weight:550}
+.c-sent{background:rgba(154,160,166,.15);color:#c2c6ca}.c-opened{background:rgba(79,159,192,.16);color:#8cc8e0}.c-fully_read{background:rgba(52,168,83,.16);color:#7fd497}
+.num{font-variant-numeric:tabular-nums;color:#c9ccbf}.dim{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+.empty{padding:48px 24px;text-align:center;color:var(--muted)}
+.empty h3{color:var(--fg);font-size:16px;margin-bottom:6px;font-weight:600}
+.feed{list-style:none;max-height:340px;overflow:auto}
+.feed li{display:flex;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line)}.feed li:last-child{border:0}
+.dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0;background:var(--open)}.dot.r{background:var(--read)}.dot.c{background:var(--lime)}
+.feed b{font-weight:500;display:block;font-size:13.5px}.feed small{color:var(--muted);font-size:12px}
+.hours{display:flex;align-items:flex-end;gap:3px;height:80px;padding:14px 16px 0}
+.hours i{flex:1;background:rgba(200,240,74,.25);border-radius:3px 3px 0 0;min-height:2px}.hours i.hi{background:var(--lime)}
+.hlab{display:flex;justify-content:space-between;padding:6px 16px 12px;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.dev{padding:6px 16px 14px}.dev div{display:flex;justify-content:space-between;padding:6px 0;font-size:13px}
+.dev .bar2{height:4px;border-radius:2px;background:rgba(255,255,255,.07);margin-top:4px}.dev .bar2 i{display:block;height:100%;background:var(--lime);border-radius:2px}
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--ink2);border-left:1px solid var(--line);z-index:50;overflow:auto;box-shadow:-20px 0 60px rgba(0,0,0,.5)}
+.dh{position:sticky;top:0;background:var(--ink2);padding:18px 20px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px}
+.dh h2{font-size:16px;font-weight:600;line-height:1.3}.dh p{color:var(--muted);font-size:13px}
+.x{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);color:var(--muted);flex-shrink:0}.x:hover{color:var(--ink);background:var(--lime)}
+.ds{padding:6px 20px 18px}.ds h3{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:18px 0 6px}
+.lk{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}.lk span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.note{margin-top:22px;font-size:12px;color:var(--muted)}
+.gate{max-width:520px;margin:12vh auto;text-align:center;padding:0 24px}
+.gate h1{font-size:28px;letter-spacing:-.03em;margin-bottom:10px;font-weight:650}.gate p{color:var(--muted);margin-bottom:22px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink3);border:1px solid var(--line);border-radius:10px;padding:10px 16px;z-index:60;font-size:13px}
+@media (max-width:980px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}.stats div:nth-child(4){border-left:0}.stats div:nth-child(n+4){border-top:1px solid var(--line)}}
+@media (max-width:640px){main{padding:16px}.bar{padding:10px 16px}.row{grid-template-columns:24px 1fr 76px}.row .hide-s{display:none}.search{width:100%;margin:6px 0 0}.stats b{font-size:22px}}
 </style>
 </head>
 <body>
-
-<div class="topbar">
-  <div class="tl">
-    <span class="wordmark" style="font-family:var(--sans);font-weight:800;font-style:normal;letter-spacing:-.5px;">Traced<span style="color:var(--lime)">.</span></span>
-    <span class="slash">/</span>
-    <span class="page">dashboard</span>
-  </div>
-  <div class="tr2">
-    <div class="status-pill"><span class="status-dot"></span>Tracking Active</div>
-    <button class="tbtn" onclick="loadAll()">↻ Refresh</button>
-    <button class="tbtn" onclick="confirmClearAll()" style="color:#ff6b6b;border-color:rgba(255,107,107,0.3);">🗑 Clear All</button>
+<div class="bar">
+  <a class="brand" href="/"><svg viewBox="0 0 28 24" aria-hidden="true" fill="none" stroke="#c8f04a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m2 12 5 5L18 5"/><path d="m12 16 2 2L26 5"/></svg>Traced<small>/ dashboard</small></a>
+  <div class="actions" id="actions" hidden>
+    <button class="btn" id="refresh">Refresh</button>
+    <button class="btn" id="export">Export CSV</button>
+    <button class="btn danger" id="wipe">Delete all data</button>
   </div>
 </div>
 
-<div class="layout">
-  <!-- Sidebar -->
-  <div class="sb">
-    <div class="sb-lbl">Views</div>
-    <div class="sb-item act" onclick="setView('all',this)"><div class="sb-item-l"><span class="sb-ic">◈</span>All</div><span class="sb-n" id="b-all">0</span></div>
-    <div class="sb-item" onclick="setView('read',this)"><div class="sb-item-l"><span class="sb-ic">●</span>Fully Read</div><span class="sb-n" id="b-read">0</span></div>
-    <div class="sb-item" onclick="setView('opened',this)"><div class="sb-item-l"><span class="sb-ic">○</span>Opened</div><span class="sb-n" id="b-opened">0</span></div>
-    <div class="sb-item" onclick="setView('sent',this)"><div class="sb-item-l"><span class="sb-ic">·</span>Unopened</div><span class="sb-n" id="b-sent">0</span></div>
-    <div class="sb-divider"></div>
-    <div class="sb-lbl">Tools</div>
-    <div class="sb-item" onclick="exportCSV()"><div class="sb-item-l"><span class="sb-ic">↓</span>Export CSV</div></div>
-  </div>
-
-  <!-- Main -->
-  <div class="main">
-
-    <!-- Stat strip -->
-    <div class="stat-strip">
-      <div class="stat-cell">
-        <div class="stat-pre">Tracked</div>
-        <div class="stat-num" id="st-total">0</div>
-        <div class="stat-post">Emails total</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-pre">Opened</div>
-        <div class="stat-num" id="st-opened">0</div>
-        <div class="stat-post">By recipients</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-pre">Fully Read</div>
-        <div class="stat-num" id="st-read">0</div>
-        <div class="stat-post">To the bottom</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-pre">Links Clicked</div>
-        <div class="stat-num" id="st-links">0</div>
-        <div class="stat-post">Total clicks</div>
-      </div>
-    </div>
-
-    <!-- Content grid -->
-    <div class="content">
-
-      <!-- Email table -->
-      <div class="table-panel">
-        <div class="panel-head">
-          <span class="panel-title" id="panel-title">All Tracked</span>
-          <span class="panel-action" onclick="exportCSV()">Export ↓</span>
-        </div>
-        <div class="eth">
-          <span></span>
-          <span>Subject</span>
-          <span>Recipient</span>
-          <span>Status</span>
-          <span>×</span>
-          <span>Last</span>
-        </div>
-        <div class="email-rows" id="email-rows"></div>
-      </div>
-
-      <!-- Right column -->
-      <div class="right-panel">
-        <div class="panel-head" style="flex-shrink:0;border-bottom:1px solid var(--rule);">
-          <span class="panel-title">Opens by Hour</span>
-        </div>
-        <div class="chart-section">
-          <div class="hour-chart" id="hourly-chart"></div>
-        </div>
-
-        <div class="panel-head" style="flex-shrink:0;border-bottom:1px solid var(--rule);border-top:1px solid var(--rule);">
-          <span class="panel-title">Device Breakdown</span>
-        </div>
-        <div class="device-section" id="device-list"></div>
-
-        <div class="panel-head" style="flex-shrink:0;border-bottom:1px solid var(--rule);border-top:1px solid var(--rule);">
-          <span class="panel-title">Live Activity</span>
-          <span class="panel-action" id="act-count">—</span>
-        </div>
-        <div class="activity-section">
-          <div class="act-feed" id="act-feed"></div>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="gate" id="gate" hidden>
+  <h1>Open this from the extension</h1>
+  <p>Your dashboard is private to your Traced install. Click the Traced icon in Chrome, then <b>Open dashboard</b>. That link carries your key, and this page remembers it in this browser.</p>
+  <a class="btn lime" href="/">Get Traced</a>
 </div>
 
-<!-- Drawer -->
-<div class="drawer" id="drawer">
-  <div class="dh">
-    <div><div class="dt" id="d-title">—</div><div class="ds" id="d-sub">—</div></div>
-    <button class="dclose" onclick="closeDrawer()">✕</button>
+<main id="app" hidden>
+  <div class="stats">
+    <div><b id="s-total">0</b><span>Tracked</span></div>
+    <div><b id="s-opened">0</b><span>Opened</span></div>
+    <div><b id="s-read">0</b><span>Read to the end</span></div>
+    <div><b id="s-sessions">0</b><span>Open sessions</span></div>
+    <div><b id="s-clicks">0</b><span>Link click visits</span></div>
   </div>
-  <div class="dbody" id="d-body"></div>
-</div>
-
-<script>
-const API = 'https://traced.mikaelsyed.me';
-
-// No mock data — dashboard shows only real tracked emails
-
-let emails = [];
-let activity = [];
-let currentView = 'all';
-
-async function loadAll() {
-  try {
-    // Dashboard is a webpage — fetch directly from the Traced server API
-    // /api/emails returns all tracked email IDs from KV storage
-    const [emailsRes, actRes] = await Promise.all([
-      fetch(`${API}/api/emails`),
-      fetch(`${API}/api/activity?limit=100`)
-    ]);
-
-    if (emailsRes.ok) {
-      const emailIds = await emailsRes.json(); // array of trackingIds
-      if (emailIds.length) {
-        const bulkRes = await fetch(`${API}/api/status/bulk`, {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ids: emailIds})
-        });
-        const statuses = await bulkRes.json();
-        emails = Object.values(statuses).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-      }
-    }
-
-    if (actRes.ok) {
-      activity = await actRes.json();
-    }
-  } catch(e) {
-    console.error('[Traced dashboard] Load error:', e);
-    emails = [];
-    activity = [];
-  }
-  renderAll();
-}
-
-function renderAll() {
-  // Stats
-  const total = emails.length;
-  const opened = emails.filter(e=>e.state==='opened'||e.state==='fully_read').length;
-  const read = emails.filter(e=>e.state==='fully_read').length;
-  const links = activity.filter(e=>e.type==='link_clicked').length;
-  se('st-total',total);se('st-opened',opened);se('st-read',read);se('st-links',links);
-  se('b-all',total);se('b-read',read);se('b-opened',opened);se('b-sent',total-opened);
-
-  renderTable();
-  renderHourly();
-  renderDevices();
-  renderActivity();
-}
-
-function renderTable() {
-  const filter = {'all':()=>true,'read':e=>e.state==='fully_read','opened':e=>e.state==='opened','sent':e=>e.state==='sent'};
-  const filtered = emails.filter(filter[currentView]||filter.all);
-  const rows = document.getElementById('email-rows');
-
-  if(!filtered.length){
-    rows.innerHTML=`<div style="padding:40px 24px;font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:1px;text-transform:uppercase;">No emails in this view</div>`;
-    return;
-  }
-
-  rows.innerHTML = filtered.map(e=>{
-    const {state='sent',openCount=0,fullyReadCount=0,subject,recipient,opens=[],createdAt,lastOpened} = e;
-    const dotCls = {sent:'dot-sent',opened:'dot-opened',fully_read:'dot-read'}[state]||'dot-sent';
-    const sCls = {sent:'s-sent',opened:'s-opened',fully_read:'s-read'}[state]||'s-sent';
-    const sLbl = {sent:'Unopened',opened:'Opened',fully_read:'Read'}[state]||'Sent';
-    const cnt = state==='fully_read'?fullyReadCount:openCount;
-    const lastT = fmtShort(lastOpened||createdAt);
-
-    return `<div class="etr" onclick="openDrawer('${e.trackingId}')">
-      <div style="display:flex;align-items:center;justify-content:center;"><div class="state-dot ${dotCls}"></div></div>
-      <div class="e-subject">${esc(subject||'(no subject)')}</div>
-      <div class="e-recip">${esc(recipient||'—')}</div>
-      <div class="e-state ${sCls}">${sLbl}</div>
-      <div class="e-count">${cnt>0?cnt+'×':'—'}</div>
-      <div class="e-time">${lastT}</div>
-    </div>`;
-  }).join('');
-}
-
-function renderHourly() {
-  const b={};
-  activity.forEach(e=>{const h=new Date(e.time).getHours();b[h]=(b[h]||0)+1;});
-  const max=Math.max(1,...Object.values(b));
-  const chart=document.getElementById('hourly-chart');
-  chart.innerHTML=Array.from({length:24},(_,h)=>{
-    const c=b[h]||0;const pct=Math.round((c/max)*100);
-    const isPeak=pct>60;
-    return `<div class="hcol" title="${h}:00 — ${c} event${c!==1?'s':''}">
-      <div class="hbar${isPeak?' peak':''}" style="height:${pct}%"></div>
-      <div class="hlb">${h%6===0?h+'h':''}</div>
-    </div>`;
-  }).join('');
-}
-
-function renderDevices() {
-  const d={};
-  activity.forEach(e=>{if(e.device)d[e.device]=(d[e.device]||0)+1;});
-  const total=Object.values(d).reduce((a,b)=>a+b,0)||1;
-  const dl=document.getElementById('device-list');
-  if(!Object.keys(d).length){dl.innerHTML='<div style="font-family:var(--mono);font-size:9px;color:var(--faint);">No data</div>';return;}
-  dl.innerHTML=Object.entries(d).sort((a,b)=>b[1]-a[1]).map(([dv,c])=>{
-    const pct=Math.round((c/total)*100);
-    return `<div class="device-row">
-      <div class="device-name">${cap(dv)}</div>
-      <div class="device-bar-bg"><div class="device-bar-fill" style="width:${pct}%"></div></div>
-      <div class="device-pct">${pct}%</div>
-    </div>`;
-  }).join('');
-}
-
-function renderActivity() {
-  se('act-count',activity.length+' events');
-  const typeMap={
-    fully_read:{dot:'ad-read',lbl:'fully read'},
-    opened:{dot:'ad-open',lbl:'opened'},
-    link_clicked:{dot:'ad-link',lbl:'clicked a link in'},
-  };
-  const feed=document.getElementById('act-feed');
-  if(!activity.length){feed.innerHTML='<div style="padding:20px;font-family:var(--mono);font-size:9px;color:var(--faint);">Waiting for activity…</div>';return;}
-  feed.innerHTML=activity.map(e=>{
-    const {dot,lbl}=typeMap[e.type]||typeMap.opened;
-    return `<div class="act-item">
-      <div class="act-dot ${dot}"></div>
-      <div class="act-body">
-        <div class="act-main"><strong>${esc(e.recipient||'Someone')}</strong> ${lbl} "${esc(e.subject||'')}"</div>
-        <div class="act-chips">
-          ${e.device?`<span class="act-chip">${e.device}</span>`:''}
-          ${e.client?`<span class="act-chip">${esc(e.client)}</span>`:''}
-        </div>
+  <div class="grid">
+    <div class="card">
+      <div class="tools" role="tablist">
+        <button class="tab on" data-f="all">All</button><button class="tab" data-f="opened">Opened</button><button class="tab" data-f="fully_read">Read</button><button class="tab" data-f="sent">Unopened</button>
+        <input class="search" id="q" type="search" placeholder="Search subject or recipient" aria-label="Search">
       </div>
-      <div class="act-time">${fmtShort(e.time)}</div>
-    </div>`;
-  }).join('');
-}
-
-// Drawer
-function openDrawer(id) {
-  const e=emails.find(x=>x.trackingId===id);
-  if(!e)return;
-  document.getElementById('d-title').textContent=e.subject||'(no subject)';
-  document.getElementById('d-sub').textContent=`to: ${e.recipient||'—'}`;
-
-  const hb={};
-  (e.timeline||[]).forEach(ev=>{const h=new Date(ev.time).getHours();hb[h]=(hb[h]||0)+1;});
-  const hmax=Math.max(1,...Object.values(hb));
-  const hourBars=Array.from({length:24},(_,h)=>{
-    const c=hb[h]||0;const pct=Math.round((c/hmax)*100);
-    return `<div class="dhcol"><div class="dhbar" style="height:${pct}%"></div><div class="dhlb">${h%6===0?h+'h':''}</div></div>`;
-  }).join('');
-
-  const dotCls={fully_read:'ad-read',opened:'ad-open',link_clicked:'ad-link'};
-  const tlHtml=(e.timeline||[]).slice(-10).reverse().map(ev=>{
-    const dc=dotCls[ev.type]||'ad-open';
-    const lbl={fully_read:'Fully read',opened:'Opened',link_clicked:'Link clicked'}[ev.type]||'Event';
-    return `<div class="d-tl-item">
-      <div class="d-tl-dot ${dc}"></div>
-      <div class="d-tl-b">
-        <div class="d-tl-e">${lbl}</div>
-        <div class="d-tl-m">${ev.device||''} · ${ev.client||''}</div>
-      </div>
-      <div class="d-tl-t">${fmtFull(ev.time)}</div>
-    </div>`;
-  }).join('')||'<div style="font-family:var(--mono);font-size:9px;color:var(--faint);padding:4px 0;">No events yet.</div>';
-
-  const devs=[...new Set((e.opens||[]).map(o=>o.device).filter(Boolean))].length;
-
-  document.getElementById('d-body').innerHTML=`
-    <div class="d-stat-row">
-      <div class="d-stat"><div class="d-stat-n">${e.openCount||0}</div><div class="d-stat-l">Opens</div></div>
-      <div class="d-stat"><div class="d-stat-n">${e.fullyReadCount||0}</div><div class="d-stat-l">Full Reads</div></div>
-      <div class="d-stat"><div class="d-stat-n">${devs}</div><div class="d-stat-l">Devices</div></div>
+      <div class="row head"><span></span><span>Email</span><span>Status</span><span class="hide-s">Sessions</span><span class="hide-s">Clicks</span><span>Last</span></div>
+      <div id="list"></div>
     </div>
     <div>
-      <div class="d-sec-lbl">Opens by hour</div>
-      <div class="d-hour-chart">${hourBars}</div>
-    </div>
-    <div>
-      <div class="d-sec-lbl">Timeline</div>
-      <div class="d-tl">${tlHtml}</div>
-    </div>`;
-
-  document.getElementById('drawer').classList.add('open');
-}
-
-function closeDrawer(){document.getElementById('drawer').classList.remove('open');}
-
-function setView(v,el){
-  currentView=v;
-  document.querySelectorAll('.sb-item').forEach(x=>x.classList.remove('act'));
-  el.classList.add('act');
-  const titles={all:'All Tracked',read:'Fully Read',opened:'Opened',sent:'Unopened'};
-  se('panel-title',titles[v]||'All');
-  renderTable();
-}
-
-function exportCSV(){
-  const rows=[['Subject','Recipient','State','Opens','Fully Read','Sent','Last Opened']];
-  emails.forEach(e=>rows.push([`"${(e.subject||'').replace(/"/g,'""')}"`,`"${(e.recipient||'').replace(/"/g,'""')}"`,e.state||'sent',e.openCount||0,e.fullyReadCount||0,e.createdAt||'',e.lastOpened||'']));
-  const blob=new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`traced-${new Date().toISOString().slice(0,10)}.csv`;a.click();
-}
-
-function se(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
-function cap(s){return s?s[0].toUpperCase()+s.slice(1):'';}
-function esc(s=''){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function fmtShort(iso){
-  if(!iso)return'—';
-  const diff=Date.now()-new Date(iso).getTime();
-  if(diff<60000)return'now';
-  if(diff<3600000)return Math.floor(diff/60000)+'m';
-  if(diff<86400000)return Math.floor(diff/3600000)+'h';
-  return Math.floor(diff/86400000)+'d';
-}
-function fmtFull(iso){if(!iso)return'—';return new Date(iso).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
-
-loadAll();
-setInterval(loadAll,30000);
-</script>
-
-<!-- Clear All confirmation modal -->
-<div id="clear-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:#1a1a18;border:1px solid #363632;border-radius:16px;padding:32px;max-width:380px;width:90%;text-align:center;">
-    <div style="font-size:32px;margin-bottom:12px;">🗑</div>
-    <h3 style="font-family:var(--sans);font-weight:700;font-size:18px;color:var(--text);margin-bottom:8px;">Clear all tracked emails?</h3>
-    <p style="color:var(--dim);font-size:13px;line-height:1.6;margin-bottom:24px;">This will permanently delete all tracking data from the server. Your sent emails won't be affected — only the tracking records.</p>
-    <div style="display:flex;gap:10px;justify-content:center;">
-      <button onclick="closeClearModal()" style="padding:9px 20px;border-radius:8px;border:1px solid var(--rule2);background:transparent;color:var(--dim);font-family:var(--sans);font-size:13px;cursor:pointer;">Cancel</button>
-      <button onclick="executeClearAll()" style="padding:9px 20px;border-radius:8px;border:none;background:#ff6b6b;color:#fff;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;">Yes, clear all</button>
+      <div class="card"><div class="ch"><b>Recent activity</b><small id="act-n"></small></div><ul class="feed" id="feed"></ul></div>
+      <div class="card"><div class="ch"><b>Opens by hour</b><small>your local time</small></div><div class="hours" id="hours"></div><div class="hlab"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span></div></div>
+      <div class="card"><div class="ch"><b>Devices</b></div><div class="dev" id="dev"></div></div>
     </div>
   </div>
-</div>
+  <p class="note">A new session starts after 15 minutes without activity, or from a different device. Automated link checkers are recorded but never counted as clicks. Data is deleted automatically after 180 days.</p>
+</main>
 
 <script>
-function confirmClearAll() {
-  const modal = document.getElementById('clear-modal');
-  modal.style.display = 'flex';
+const API = location.origin;
+const $ = id => document.getElementById(id);
+function h(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+// Key handling: arrives in the URL fragment (#k=...), is stored locally, then removed from the address bar.
+(function(){
+  const m = location.hash.match(/k=([0-9a-f]{32,128})/i);
+  if (m) { try { localStorage.setItem('traced.key', m[1]); } catch {} history.replaceState(null, '', location.pathname); }
+})();
+let KEY = ''; try { KEY = localStorage.getItem('traced.key') || ''; } catch {}
+
+let emails = [], activity = [], view = 'all', q = '';
+
+const ago = iso => { if (!iso) return '—'; const d = Date.now() - Date.parse(iso);
+  if (d < 6e4) return 'now'; if (d < 36e5) return Math.floor(d/6e4)+'m'; if (d < 864e5) return Math.floor(d/36e5)+'h';
+  if (d < 7*864e5) return Math.floor(d/864e5)+'d'; return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric'}); };
+const when = iso => iso ? new Date(iso).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '';
+const host = u => { try { return new URL(u).host.replace(/^www\./,''); } catch { return u || ''; } };
+const NS='http://www.w3.org/2000/svg';
+function tick(state){ const s=document.createElementNS(NS,'svg'); s.setAttribute('viewBox','0 0 18 14'); s.setAttribute('class','tick s-'+state); s.setAttribute('fill','none'); s.setAttribute('stroke','currentColor'); s.setAttribute('stroke-width','1.8'); s.setAttribute('stroke-linecap','round'); s.setAttribute('stroke-linejoin','round');
+  for (const d of ['M2 7.5l3.6 3.6L11 3.5','M7.6 11.1l.6.6L14.6 3.5']) { const p=document.createElementNS(NS,'path'); p.setAttribute('d',d); s.append(p);} return s; }
+const LABEL = { sent: 'Sent', opened: 'Opened', fully_read: 'Read' };
+
+async function call(path, opts = {}) {
+  const r = await fetch(API + path, { ...opts, headers: { 'X-Traced-Key': KEY, ...(opts.body ? {'Content-Type':'application/json'} : {}) } });
+  if (r.status === 401) throw new Error('key');
+  return r;
 }
 
-function closeClearModal() {
-  document.getElementById('clear-modal').style.display = 'none';
-}
-
-async function executeClearAll() {
-  closeClearModal();
+async function load() {
   try {
-    const res = await fetch(`${API}/api/emails`, { method: 'DELETE' });
-    const data = await res.json();
-    // Also clear local extension storage if accessible
-    emails = [];
-    activity = [];
-    renderAll();
-    // Show success toast
-    showToast(`Cleared ${data.cleared || 0} tracked emails`);
-  } catch(e) {
-    showToast('Error clearing emails — try again', true);
+    const r = await call('/api/dashboard?limit=150');
+    if (!r.ok) throw new Error('http');
+    const d = await r.json();
+    emails = d.emails || []; activity = d.activity || [];
+    render();
+  } catch (e) { toast(e.message === 'key' ? 'That key isn’t valid. Open the dashboard from the extension again.' : 'Couldn’t load. Try Refresh.'); }
+}
+
+function render() {
+  const opened = emails.filter(e => e.state !== 'sent');
+  $('s-total').textContent = emails.length;
+  $('s-opened').textContent = opened.length;
+  $('s-read').textContent = emails.filter(e => e.state === 'fully_read').length;
+  $('s-sessions').textContent = emails.reduce((n, e) => n + (e.openCount || 0), 0);
+  $('s-clicks').textContent = emails.reduce((n, e) => n + (e.clickSessions || 0), 0);
+
+  const term = q.trim().toLowerCase();
+  const rows = emails.filter(e => (view === 'all' || e.state === view) && (!term || (e.subject + ' ' + e.recipient).toLowerCase().includes(term)));
+  const list = $('list'); list.replaceChildren();
+  if (!rows.length) {
+    const box = h('div', 'empty');
+    box.append(h('h3', null, emails.length ? 'Nothing matches' : 'No tracked emails yet'), h('p', null, emails.length ? 'Try a different filter.' : 'Send an email from Gmail with Traced on and it will show up here.'));
+    list.append(box);
+  }
+  for (const e of rows) {
+    const row = h('button', 'row'); row.type = 'button';
+    const em = h('div'); em.append(h('div', 'subj', e.subject || '(no subject)'), h('div', 'rcpt', e.recipient || ''));
+    const chip = h('span', 'chip c-' + e.state, LABEL[e.state] || 'Sent');
+    const ss = h('span', 'num hide-s', e.openCount ? String(e.openCount) : '—');
+    const ck = h('span', 'num hide-s', e.clickCount ? `${e.clickCount}` : '—');
+    row.append(tick(e.state), em, chip, ss, ck, h('span', 'dim', ago(e.lastClicked || e.lastFullyRead || e.lastOpened || e.createdAt)));
+    row.addEventListener('click', () => openDrawer(e));
+    list.append(row);
+  }
+
+  // activity
+  const feed = $('feed'); feed.replaceChildren();
+  $('act-n').textContent = activity.length ? `${Math.min(activity.length, 100)} events` : '';
+  if (!activity.length) feed.append(Object.assign(h('li', 'dim'), { textContent: 'No activity yet.' }));
+  for (const a of activity.slice(0, 40)) {
+    const li = h('li'); const dot = h('span', 'dot ' + (a.type === 'fully_read' ? 'r' : a.type === 'link_clicked' ? 'c' : ''));
+    const box = h('div');
+    const what = a.type === 'link_clicked' ? `Clicked ${host(a.url)}` : a.type === 'fully_read' ? 'Read to the end' : (a.session > 1 ? `Opened again (session ${a.session})` : 'Opened');
+    box.append(h('b', null, what), h('small', null, `${a.subject || '(no subject)'} · ${[a.device, a.client].filter(Boolean).join(' · ')} · ${ago(a.time)}`));
+    li.append(dot, box); feed.append(li);
+  }
+
+  // hours + devices from view sessions
+  const hrs = new Array(24).fill(0), devs = {};
+  for (const e of emails) for (const s of (e.sessions || [])) { hrs[new Date(s.first).getHours()]++; const k = s.device || 'unknown'; devs[k] = (devs[k] || 0) + 1; }
+  const max = Math.max(1, ...hrs); const hb = $('hours'); hb.replaceChildren();
+  hrs.forEach((n, i) => { const b = h('i', n === max && n > 0 ? 'hi' : ''); b.style.height = Math.max(3, (n / max) * 100) + '%'; b.title = `${i}:00 — ${n}`; hb.append(b); });
+  const dv = $('dev'); dv.replaceChildren(); const tot = Object.values(devs).reduce((a, b) => a + b, 0);
+  if (!tot) dv.append(Object.assign(h('div', 'dim'), { textContent: 'No opens yet.' }));
+  for (const [k, n] of Object.entries(devs).sort((a, b) => b[1] - a[1])) {
+    const w = h('div'); const top = h('div'); top.style.cssText = 'display:flex;justify-content:space-between;width:100%';
+    top.append(h('span', null, k[0].toUpperCase() + k.slice(1)), h('span', 'dim', `${Math.round(n / tot * 100)}%`));
+    const bar = h('div', 'bar2'); const fill = h('i'); fill.style.width = (n / tot * 100) + '%'; bar.append(fill);
+    const c = h('div'); c.style.cssText = 'display:block;padding:0'; c.append(top, bar); dv.append(c);
   }
 }
 
-function showToast(msg, isError = false) {
-  const t = document.createElement('div');
-  t.textContent = msg;
-  t.style.cssText = [
-    'position:fixed',
-    'bottom:24px',
-    'right:24px',
-    'background:' + (isError ? '#ff6b6b' : '#c8f04a'),
-    'color:' + (isError ? '#fff' : '#0b0b09'),
-    'padding:10px 18px',
-    'border-radius:8px',
-    'font-family:var(--sans)',
-    'font-size:13px',
-    'font-weight:600',
-    'z-index:9999',
-    'box-shadow:0 4px 20px rgba(0,0,0,0.4)',
-    'transition:opacity .3s',
-  ].join(';');
-  document.body.appendChild(t);
-  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3000);
+
+// Display optional location metadata without using it for counts or session grouping.
+function eventPlace(event) {
+  const loc = event?.location;
+  if (loc && (loc.city || loc.country)) {
+    let country = loc.country || '';
+    try { if (country) country = new Intl.DisplayNames([navigator.language || 'en'], {type:'region'}).of(country) || country; } catch {}
+    return [loc.city, country].filter(Boolean).join(', ') + ' (approx.)';
+  }
+  return event?.locationUnavailable === 'mail_proxy' ? 'Location unavailable (mail proxy)' : '';
+}
+function recentPlace(data) {
+  const events = [...(data.timeline || [])].reverse();
+  const located = events.find(e => e.location?.city || e.location?.country);
+  if (located) return (located.type === 'link_clicked' ? 'Click: ' : 'Open: ') + eventPlace(located);
+  return events.some(e => e.locationUnavailable === 'mail_proxy') ? 'Location unavailable (mail proxy)' : '';
 }
 
-// Close modal on backdrop click
-document.getElementById('clear-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeClearModal();
+function openDrawer(e) {
+  closeDrawer();
+  const scrim = h('div', 'scrim'); scrim.id = 'scrim';
+  const d = h('aside', 'drawer'); d.id = 'drawer'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', 'Email details');
+  const x = h('button', 'x', '×'); x.setAttribute('aria-label', 'Close');
+  const head = h('div', 'dh'); const t = h('div'); t.append(h('h2', null, e.subject || '(no subject)'), h('p', null, `To ${e.recipient || '—'} · sent ${when(e.createdAt)}`)); head.append(t, x);
+  const body = h('div', 'ds');
+
+  body.append(h('h3', null, 'Sessions'));
+  const tl = e.timeline || [];
+  if (!tl.length) body.append(Object.assign(h('div', 'dim'), { textContent: 'No activity yet.' }));
+  for (const ev of [...tl].reverse()) {
+    const li = h('div', 'lk'); const l = h('span');
+    l.textContent = ev.type === 'link_clicked' ? `Clicked ${host(ev.url)}${ev.hits > 1 ? ` (${ev.hits}×)` : ''}` : `${ev.type === 'fully_read' ? 'Read to the end' : 'Opened'} · session ${ev.session}`;
+    const r = h('span', 'dim', `${when(ev.time)}${ev.device ? ' · ' + ev.device : ''}${ev.client ? ' · ' + ev.client : ''}${eventPlace(ev) ? ' · ' + eventPlace(ev) : ''}`);
+    li.append(l, r); body.append(li);
+  }
+  const links = Object.values(e.linkStats || {});
+  if (links.length) {
+    body.append(h('h3', null, 'Links'));
+    for (const l of links) { const li = h('div', 'lk'); li.append(h('span', null, l.label && l.label !== l.url ? l.label : host(l.url)), h('span', 'dim', `${l.clicks} click${l.clicks === 1 ? '' : 's'} · ${l.sessions} visit${l.sessions === 1 ? '' : 's'}`)); body.append(li); }
+    if (e.botClicks) body.append(h('div', 'note', `${e.botClicks} automated click${e.botClicks === 1 ? '' : 's'} (link checkers) ignored.`));
+  }
+  body.append(h('div', 'note', `${e.openCount || 0} open session${e.openCount === 1 ? '' : 's'}. New session after ${e.sessionGapMinutes || 15} min of quiet. Both tracking images can load during one open; image requests are not separate opens.`));
+  const del = h('button', 'btn danger', 'Delete this email’s data'); del.style.marginTop = '18px';
+  del.addEventListener('click', async () => { if (!confirm('Delete this email and all its tracking data?')) return; const r = await call('/api/emails/' + e.trackingId, { method: 'DELETE' }); if (r.ok) { closeDrawer(); load(); } });
+  body.append(del);
+
+  d.append(head, body); document.body.append(scrim, d);
+  x.addEventListener('click', closeDrawer); scrim.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', escClose); x.focus();
+}
+function escClose(ev) { if (ev.key === 'Escape') closeDrawer(); }
+function closeDrawer() { $('drawer')?.remove(); $('scrim')?.remove(); document.removeEventListener('keydown', escClose); }
+function toast(msg) { document.querySelector('.toast')?.remove(); const t = h('div', 'toast', msg); document.body.append(t); setTimeout(() => t.remove(), 4500); }
+
+// wiring
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => { view = t.dataset.f; document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === t)); render(); }));
+$('q').addEventListener('input', e => { q = e.target.value; render(); });
+$('refresh').addEventListener('click', load);
+$('wipe').addEventListener('click', async () => {
+  if (!confirm('Delete ALL your tracking data from Traced? This cannot be undone.')) return;
+  const r = await call('/api/emails', { method: 'DELETE' }); if (r.ok) { toast('All data deleted.'); load(); }
 });
+$('export').addEventListener('click', () => {
+  const esc = s => { s = String(s ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return `"${s.replace(/"/g, '""')}"`; }; // also defuses spreadsheet formula injection
+  const rows = [['subject','recipient','sent_at','status','open_sessions','read_sessions','click_count','click_visits','last_opened','last_clicked']];
+  for (const e of emails) rows.push([e.subject, e.recipient, e.createdAt, e.state, e.openCount, e.fullyReadCount, e.clickCount, e.clickSessions, e.lastOpened, e.lastClicked]);
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([rows.map(r => r.map(esc).join(',')).join('\n')], { type: 'text/csv' })); a.download = 'traced-export.csv'; a.click(); URL.revokeObjectURL(a.href);
+});
+
+if (!KEY) { $('gate').hidden = false; }
+else { $('app').hidden = false; $('actions').hidden = false; load(); setInterval(() => { if (document.visibilityState === 'visible') load(); }, 60000); }
 </script>
 </body>
 </html>

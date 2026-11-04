@@ -1,14 +1,15 @@
+# Public source template. Fill in your D1 database ID before deploying.
+# No account credentials or access keys are included.
 name = "traced"
 main = "src/worker.js"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
 
-# KV namespace for tracking data
-# After running `wrangler kv:namespace create TRACED_KV`
-# paste the id you get below
-[[kv_namespaces]]
-binding = "TRACED_KV"
-id = "48c69f385cc34703b6341a84b72404f9"
+# D1 database (replaces Workers KV)
+[[d1_databases]]
+binding = "DB"
+database_name = "traced-db"
+database_id = "YOUR_D1_DATABASE_ID"
 
 # Serve static files (landing page, dashboard, privacy)
 [assets]
@@ -16,6 +17,29 @@ directory = "./public"
 
 [vars]
 BASE_URL = "https://traced.mikaelsyed.me"
+# Opens/clicks from the same visitor within this many minutes are ONE session;
+# a hit after a longer gap (or from a different device/browser) starts a new one.
+SESSION_GAP_MIN = "15"
+# How long raw opens/clicks are kept (also stated in /privacy)
+RETENTION_DAYS = "180"
+# A session only counts as "read to the end" if the bottom-of-message pixel fires at least this
+# many ms after the top one. Needed because many webmail clients (Gmail's image proxy especially)
+# fetch every image in a message the instant it's opened, not when scrolled into view — without
+# this gate, "read to the end" would fire on every open, scrolled or not.
+READ_DELAY_MS = "4000"
+# A link click from the sender's own IP this soon after send is treated as the sender's own
+# browser prefetching the link, not a real click, and is ignored. Kept short (unlike
+# SELF_OPEN_MS below) because a click is a deliberate action — a long window would silently
+# drop real clicks from anyone on the sender's own network for several minutes after every send.
+SELF_CLICK_MS = "45000"
+# Opens from the sender's own IP this soon after send = the sender glancing at their own Sent
+# mail, not a real open. Longer than SELF_CLICK_MS because passively re-opening a sent email is
+# common for a few minutes, unlike clicking a link in it.
+SELF_OPEN_MS = "300000"
+
+# Nightly cleanup of data older than RETENTION_DAYS
+[triggers]
+crons = ["17 3 * * *"]
 
 # Custom domain routing
 [[routes]]

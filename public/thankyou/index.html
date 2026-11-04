@@ -1,102 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thank You | Traced</title>
-    <!-- Google Fonts Imports -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-color: #000000;
-            --primary-lime: #c8f04a; /* Your branding hex code */
-            --text-main: #ffffff;
-            --serif: 'Instrument Serif', serif;
-            --mono: 'IBM Plex Mono', monospace;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            text-align: center;
-        }
-
-        .container {
-            padding: 2rem;
-            max-width: 800px;
-        }
-
-        h1 {
-            font-family: var(--serif);
-            font-style: italic;
-            font-size: 6rem;
-            font-weight: 400;
-            margin: 0;
-            line-height: 1;
-            color: var(--text-main);
-            letter-spacing: -0.02em;
-        }
-
-        h1 .highlight {
-            color: var(--primary-lime);
-        }
-
-        p {
-            font-family: var(--mono);
-            color: #666;
-            font-size: 0.85rem;
-            margin-top: 1rem;
-            text-transform: uppercase;
-        }
-
-        .btn {
-            display: inline-block;
-            margin-top: 3rem;
-            padding: 12px 24px;
-            border: 1px solid var(--primary-lime);
-            color: var(--primary-lime);
-            text-decoration: none;
-            font-family: var(--mono);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-        }
-
-        .btn:hover {
-            background-color: var(--primary-lime);
-            color: #000;
-        }
-
-        .grid {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(to right, #0a0a0a 1px, transparent 1px),
-                linear-gradient(to bottom, #0a0a0a 1px, transparent 1px);
-            background-size: 60px 60px;
-            z-index: -1;
-        }
-    </style>
-</head>
-<body>
-    <div class="grid"></div>
-    
-    <div class="container">
-        <h1>Thank <span class="highlight">you!</span></h1>
-        <p>> Thank you for helping us keep Traced free forever!</p>
-        <a href="https://traced.mikaelsyed.me" class="btn">[ Back to Home ]</a>
-    </div>
-</body>
-</html>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Thank you — Traced</title><meta name="theme-color" content="#0b0c08">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2028%2024%22%20fill%3D%22none%22%20stroke%3D%22%23c8f04a%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m2%2012%205%205L18%205%22%2F%3E%3Cpath%20d%3D%22m12%2016%202%202L26%205%22%2F%3E%3C%2Fsvg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0b0c08;--fg:#eef0e4;--muted:#9a9e8f;--line:rgba(255,255,255,.09);--lime:#c8f04a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--fg);font:16px/1.7 'Google Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--lime)}
+.top{display:flex;justify-content:space-between;align-items:center;max-width:760px;margin:0 auto;padding:22px 24px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:650;font-size:18px;color:var(--fg);text-decoration:none}
+.logo svg{width:26px;height:26px}
+.back{font-size:14px;color:var(--muted);text-decoration:none}.back:hover{color:var(--fg)}
+main{max-width:760px;margin:0 auto;padding:36px 24px 90px}
+h1{font-size:clamp(34px,5vw,52px);letter-spacing:-.04em;line-height:1.05;font-weight:650;margin-bottom:10px}
+.upd{color:var(--muted);font-size:14px;margin-bottom:34px}
+.box{border:1px solid rgba(200,240,74,.25);background:rgba(200,240,74,.05);border-radius:14px;padding:18px 22px;margin-bottom:34px}
+h2{font-size:20px;letter-spacing:-.02em;margin:38px 0 10px;padding-bottom:10px;border-bottom:1px solid var(--line);font-weight:600}
+p,li{color:#b7baad;font-size:15.5px}p{margin-bottom:12px}ul{padding-left:20px;margin-bottom:12px}li{margin-bottom:6px}
+strong{color:var(--fg);font-weight:600}
+table{width:100%;border-collapse:collapse;margin:8px 0 14px;font-size:14.5px}th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.05em}td{color:#b7baad}
+.center{text-align:center;padding:14vh 24px}
+.btn{display:inline-block;margin-top:22px;padding:12px 22px;border-radius:999px;background:var(--lime);color:var(--ink);font-weight:600;text-decoration:none}
+</style></head><body>
+<div class="top"><a class="logo" href="/"><svg viewBox="0 0 28 24" aria-hidden="true" fill="none" stroke="#c8f04a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m2 12 5 5L18 5"/><path d="m12 16 2 2L26 5"/></svg>Traced</a><a class="back" href="/">← Back to site</a></div>
+<div class="center" style="text-align:center"><h1>Thank you.</h1><p style="max-width:420px;margin:0 auto">Your support helps keep Traced free for everyone.</p><a class="btn" href="/">Back to Traced</a></div></body></html>

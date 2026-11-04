@@ -1,0 +1,11 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+/dashboard*
+  Cache-Control: no-store
+  Referrer-Policy: no-referrer
+
+/preview/*
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors 'self'

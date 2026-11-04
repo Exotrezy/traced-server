@@ -1,0 +1,128 @@
+/* traced.css — styles injected into Gmail. Everything is prefixed `traced-` to avoid collisions. */
+
+:root {
+  --traced-ink: #0e0f0b;
+  --traced-panel: #12130e;
+  --traced-line: rgba(255, 255, 255, .09);
+  --traced-text: #eceee4;
+  --traced-muted: #8b8e80;
+  --traced-lime: #c8f04a;
+  --traced-sent: #9aa0a6;
+  --traced-open: #4f9fc0;
+  --traced-read: #34a853;
+}
+
+/* ── Checkmarks in the Sent list ── */
+.traced-checks { display: inline-flex; align-items: center; position: relative; margin-left: 6px; cursor: pointer; z-index: 1; flex-shrink: 0; order: 1; }
+.traced-check-inner { display: inline-flex; align-items: center; position: relative; }
+.traced-tick { width: 13px; height: 11px; flex-shrink: 0; transition: color .3s ease; }
+.traced-tick + .traced-tick { margin-left: -5px; }
+.traced-sent .traced-tick { color: var(--traced-sent); }
+.traced-opened .traced-tick { color: var(--traced-open); }
+.traced-fully-read .traced-tick { color: var(--traced-read); }
+.traced-count {
+  position: absolute; bottom: -6px; right: -9px; min-width: 12px; height: 12px; padding: 0 3px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; color: #fff; font: 700 8px/1 'Google Sans', Roboto, Arial, sans-serif;
+}
+.traced-opened .traced-count { background: var(--traced-open); }
+.traced-fully-read .traced-count { background: var(--traced-read); }
+.traced-sent .traced-count { background: var(--traced-sent); }
+
+.traced-tooltip {
+  display: none; position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  background: var(--traced-panel); color: var(--traced-text); border: 1px solid var(--traced-line); border-radius: 10px;
+  padding: 10px 13px; white-space: nowrap; pointer-events: none; z-index: 99999;
+  font: 400 12px/1.55 'Google Sans', Roboto, Arial, sans-serif; box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+}
+.traced-tooltip strong { font-weight: 600; }
+.traced-tip-dim { color: var(--traced-muted); font-size: 11px; }
+.traced-checks:hover .traced-tooltip { display: block; }
+
+/* Visible Gmail-style tools, floating above the compose toolbar without resizing it. */
+.traced-compose-controls{position:fixed;z-index:2147483000;display:flex;flex-wrap:wrap;align-items:center;gap:8px;box-sizing:border-box;font-family:'Google Sans','Traced Google Sans',Roboto,Arial,sans-serif}
+.traced-compose-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:32px;padding:6px 12px;border-radius:18px;box-sizing:border-box;white-space:nowrap;font:500 12px/18px 'Google Sans','Traced Google Sans',Roboto,Arial,sans-serif;cursor:pointer;letter-spacing:0;box-shadow:none;transition:background-color .15s}
+.traced-footer-button{border:1px solid #dadce0;background:#fff;color:#3c4043}
+.traced-footer-button:hover{background:#f1f3f4}.traced-footer-button.on{border-color:#a8c7fa;background:#e8f0fe;color:#174ea6}
+.traced-footer-indicator{display:block;width:6px;height:6px;border-radius:50%;background:#9aa0a6;flex-shrink:0}.traced-footer-button.on .traced-footer-indicator{background:#1967d2}
+.traced-link-button{border:1px solid transparent;background:#e6f3c5;color:#26350f}.traced-link-button:hover{background:#c8f04a}.traced-compose-link-icon{display:inline-flex;align-items:center}
+.traced-compose-button:focus-visible{outline:2px solid #1a73e8;outline-offset:2px}
+.traced-compose-controls[data-theme="dark"] .traced-footer-button{background:#303134;color:#e8eaed;border-color:#5f6368}.traced-compose-controls[data-theme="dark"] .traced-footer-button:hover{background:#3c4043}.traced-compose-controls[data-theme="dark"] .traced-footer-button.on{background:#28374e;color:#d3e3fd;border-color:#8ab4f8}.traced-compose-controls[data-theme="dark"] .traced-footer-button.on .traced-footer-indicator{background:#a8c7fa}
+.traced-compose-controls[data-theme="dark"] .traced-link-button{background:#d7e9b5;color:#22300c}.traced-compose-controls[data-theme="dark"] .traced-link-button:hover{background:#c8f04a}
+
+/* ── Link modal ── */
+#traced-link-modal { position: fixed; inset: 0; z-index: 999999; background: rgba(0, 0, 0, .5); display: flex; align-items: center; justify-content: center; font-family: 'Google Sans', Roboto, Arial, sans-serif; }
+.traced-modal { width: 400px; max-width: 92vw; background: var(--traced-panel); color: var(--traced-text); border: 1px solid var(--traced-line); border-radius: 14px; padding: 22px; box-shadow: 0 24px 60px rgba(0, 0, 0, .6); }
+.traced-modal-title { font-size: 15px; font-weight: 600; }
+.traced-modal-sub { margin: 4px 0 16px; font-size: 12px; color: var(--traced-muted); line-height: 1.5; }
+.traced-modal input {
+  display: block; width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 10px 12px; border-radius: 8px;
+  border: 1px solid var(--traced-line); background: #0b0c08; color: var(--traced-text); font: inherit; font-size: 13px; outline: none;
+}
+.traced-modal input:focus { border-color: var(--traced-lime); }
+.traced-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+.traced-btn { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--traced-line); background: transparent; color: var(--traced-text); font: 500 12px 'Google Sans', Roboto, Arial, sans-serif; cursor: pointer; }
+.traced-btn.primary { background: var(--traced-lime); border-color: var(--traced-lime); color: var(--traced-ink); font-weight: 600; }
+.traced-modal-status { min-height: 16px; margin-top: 10px; font-size: 12px; color: var(--traced-muted); }
+.traced-modal-status.err { color: #ff8a80; }
+.traced-modal-status.ok { color: var(--traced-lime); }
+
+/* ── Analytics panel ── */
+.traced-analytics-panel {
+  position: fixed; top: 64px; right: -380px; width: 340px; max-height: calc(100vh - 88px); overflow-y: auto; z-index: 99999;
+  background: var(--traced-panel); color: var(--traced-text); border: 1px solid var(--traced-line); border-right: none; border-radius: 14px 0 0 14px;
+  box-shadow: -12px 0 40px rgba(0, 0, 0, .45); transition: right .28s cubic-bezier(.16, 1, .3, 1);
+  font-family: 'Google Sans', Roboto, Arial, sans-serif; scrollbar-width: thin;
+}
+.traced-analytics-panel.traced-panel-visible { right: 0; }
+.traced-panel-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 16px 16px 12px; border-bottom: 1px solid var(--traced-line); position: sticky; top: 0; background: var(--traced-panel); }
+.traced-panel-titles { min-width: 0; }
+.traced-panel-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 230px; }
+.traced-panel-sub { margin-top: 2px; font-size: 12px; color: var(--traced-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 230px; }
+.traced-panel-btns { display: flex; gap: 4px; }
+.traced-panel-close { width: 26px; height: 26px; border-radius: 7px; border: 1px solid var(--traced-line); background: transparent; color: var(--traced-muted); font-size: 15px; line-height: 1; cursor: pointer; }
+.traced-panel-close:hover { color: var(--traced-ink); background: var(--traced-lime); border-color: var(--traced-lime); }
+.traced-panel-stats { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--traced-line); }
+.traced-stat { padding: 14px 8px; text-align: center; }
+.traced-stat + .traced-stat { border-left: 1px solid var(--traced-line); }
+.traced-stat-num { font-size: 22px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+.traced-stat-lbl { margin-top: 5px; font-size: 11px; color: var(--traced-muted); }
+.traced-panel-section { padding: 14px 16px 6px; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--traced-muted); }
+.traced-timeline { padding: 0 16px 8px; }
+.traced-tl-row { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--traced-line); }
+.traced-tl-row:last-child { border-bottom: none; }
+.traced-tl-dot { width: 8px; height: 8px; margin-top: 5px; border-radius: 50%; flex-shrink: 0; background: var(--traced-open); }
+.t-fully_read .traced-tl-dot { background: var(--traced-read); }
+.t-link_clicked .traced-tl-dot { background: var(--traced-lime); }
+.traced-tl-info { display: flex; flex-direction: column; min-width: 0; }
+.traced-tl-title { font-size: 13px; }
+.traced-tl-meta { margin-top: 1px; font-size: 11px; color: var(--traced-muted); }
+.traced-empty { padding: 12px 0; font-size: 12px; color: var(--traced-muted); line-height: 1.5; }
+.traced-panel-footer { padding: 12px 16px 14px; border-top: 1px solid var(--traced-line); font-size: 11px; color: var(--traced-muted); }
+
+/* ── Activity toast ── */
+.traced-activity-bar {
+  position: fixed; top: 72px; left: 50%; z-index: 99998; display: flex; align-items: center; gap: 10px; max-width: 560px;
+  padding: 10px 14px; border-radius: 12px; background: var(--traced-panel); color: var(--traced-text); border: 1px solid var(--traced-line);
+  font: 400 13px/1.3 'Google Sans', Roboto, Arial, sans-serif; box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  opacity: 0; transform: translate(-50%, -8px); transition: opacity .3s ease, transform .3s ease;
+}
+.traced-activity-bar.traced-act-visible { opacity: 1; transform: translate(-50%, 0); }
+.traced-act-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--traced-open); }
+.traced-act-dot.d-fully_read { background: var(--traced-read); }
+.traced-act-dot.d-link_clicked { background: var(--traced-lime); }
+.traced-act-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.traced-act-chip { padding: 2px 8px; border-radius: 999px; border: 1px solid var(--traced-line); font-size: 11px; color: var(--traced-muted); white-space: nowrap; }
+.traced-act-close { border: none; background: none; color: var(--traced-muted); font-size: 16px; cursor: pointer; }
+.traced-panel-sessions { padding: 0 16px 12px; margin-top: -4px; font-size: 11px; color: var(--traced-muted); }
+
+/* Bundled font: no remote font request from Gmail or extension pages. */
+@font-face{font-family:'Traced Google Sans';font-style:normal;font-weight:400 700;font-display:swap;src:url('chrome-extension://__MSG_@@extension_id__/fonts/GoogleSans-latin.woff2') format('woff2')}
+.traced-modal,.traced-analytics-panel,.traced-tooltip{font-family:'Traced Google Sans','Google Sans',system-ui,sans-serif}
+.traced-panel-stats{grid-template-columns:repeat(3,1fr)}.traced-stat{padding:14px 4px}.traced-stat-num{font-size:21px}.traced-tl-meta{overflow-wrap:anywhere}
+#traced-link-modal{background:rgba(0,0,0,.45);font-family:'Traced Google Sans',system-ui,sans-serif}
+.traced-modal{background:#191919;color:#ededed;border:1px solid #343434;border-radius:10px;padding:22px 24px;box-shadow:0 16px 48px #0005;width:416px}
+.traced-modal-heading-row{display:flex;align-items:center;justify-content:space-between;gap:20px}.traced-modal-title{font-size:17px;font-weight:500}.traced-modal-dismiss{border:0;background:none;color:#aaa;font:22px/1 sans-serif;padding:0 2px;cursor:pointer}.traced-modal-sub{margin:7px 0 23px;color:#a1a1a1;font-size:12px}
+.traced-field-label{display:block;font-size:12px;font-weight:500;margin:0 0 7px;color:inherit}.traced-modal input{background:#222;border:1px solid #414141;color:inherit;border-radius:5px;padding:10px 11px;font:13px/1.5 'Traced Google Sans',system-ui,sans-serif;margin:0 0 17px}.traced-modal input:focus{outline:2px solid #c8f04a;outline-offset:2px;border-color:#737373}.traced-modal input::placeholder{color:#929292}.traced-modal-actions{border-top:1px solid #343434;padding-top:17px;margin-top:4px;gap:10px}.traced-modal .traced-btn{border:1px solid #414141;border-radius:5px;padding:9px 15px;color:#ddd;background:transparent;font:500 12px 'Traced Google Sans',system-ui,sans-serif}.traced-modal .traced-btn.primary{background:#ededed;color:#191919;border-color:#ededed}.traced-modal-status:empty{display:none}.traced-modal-status{margin:12px 0 0;color:#a1a1a1}
+@media(prefers-color-scheme:light){.traced-modal{background:#fff;color:#242424;border-color:#ddd;box-shadow:0 16px 48px #0003}.traced-modal-sub,.traced-modal-dismiss{color:#6b6b6b}.traced-modal input{background:#fff;border-color:#ccc}.traced-modal input:focus{outline-color:#7c9630}.traced-modal-actions{border-color:#e5e5e5}.traced-modal .traced-btn{color:#444;border-color:#ccc}.traced-modal .traced-btn.primary{background:#242424;color:#fff;border-color:#242424}}
+
+.traced-modal{box-sizing:border-box}.traced-modal input{box-shadow:none}
